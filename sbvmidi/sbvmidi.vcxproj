@@ -257,7 +257,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\virtualmidi\miniport.cpp" />
-    <ClCompile Include="..\virtualmidi\mpu.cpp" />
+    <ClCompile Include="..\virtualmidi\stream.cpp" />
     <ClCompile Include="adapter.cpp" />
   </ItemGroup>
   <ItemGroup>

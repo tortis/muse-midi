@@ -444,8 +444,37 @@ ProcessResources
  * Obtains an interface.  This function works just like a COM QueryInterface
  * call and is used if the object is not being aggregated.
  */
+NTSTATUS CMiniportDMusUARTStream::PutMessage(_In_   PDMUS_KERNEL_EVENT pDMKEvt)
+{
+	ULONG bytesRemaining = 0;
+	ULONG bytesWritten = 0;
+	NTSTATUS ntStatus;
+	MLOG("PutMessage");
+	if (pDMKEvt == NULL) {
+		MLOG("Event is null, do nothing");
+		return STATUS_SUCCESS;
+	}
+	//Basically just write and free the allocator
+	bytesRemaining = pDMKEvt->cbEvent;
+	ntStatus = Write(pDMKEvt->uData.abData, bytesRemaining, &bytesWritten);
+	pDMKEvt->uData.pPackageEvt = NULL;
+	pDMKEvt->cbEvent = 0;
+	m_AllocatorMXF->PutMessage(pDMKEvt);    //  throw back in free pool
+	return STATUS_SUCCESS;
+}
 
- 
+#pragma code_seg("PAGE")
+STDMETHODIMP_(void)
+CMiniportDMusUART::
+PowerChangeNotify
+(
+_In_    POWER_STATE             PowerState
+)
+{
+	PAGED_CODE();
+
+	MLOG("CMiniportDMusUART::PoweChangeNotify D%d", PowerState.DeviceState);
+} 
 
 STDMETHODIMP_(NTSTATUS)
 CMiniportDMusUART::
@@ -539,20 +568,7 @@ CMiniportDMusUART::~CMiniportDMusUART(void)
     ASSERT(0 == m_NumRenderStreams);
 
     //  reset the HW so we don't get anymore interrupts
-   /* if (m_UseIRQ && m_pInterruptSync)
-    {
-        (void) m_pInterruptSync->CallSynchronizedRoutine(InitMPU,PVOID(m_pPortBase));
-    }
-    else
-    {
-        (void) InitMPU(NULL,PVOID(m_pPortBase));
-    }
-
-    if (m_pInterruptSync)
-    {
-        m_pInterruptSync->Release();
-        m_pInterruptSync = NULL;
-    }
+  
     if (m_pServiceGroup)
     {
         m_pServiceGroup->Release();
@@ -562,7 +578,7 @@ CMiniportDMusUART::~CMiniportDMusUART(void)
     {
         m_pPort->Release();
         m_pPort = NULL;
-    }*/
+    }
 }
 
 #pragma code_seg("PAGE")
@@ -595,7 +611,6 @@ Init
 
     *ServiceGroup = NULL;
     m_pPortBase = 0;
-    m_fMPUInitialized = FALSE;
 
     // This will remain unspecified if the miniport does not get any power
     // messages.
@@ -624,13 +639,6 @@ Init
     RtlCopyMemory(  &PinDataRangesStreamDMusic.Technology,
                     &m_MusicFormatTechnology,
                     sizeof(GUID));
-	MLOG("Initializing buffers...");
-    for (ULONG bufferCount = 0;bufferCount < kMPUInputBufferSize;bufferCount++)
-    {
-        m_MPUInputBuffer[bufferCount] = 0;
-    }
-    m_MPUInputBufferHead = 0;
-    m_MPUInputBufferTail = 0;
     m_InputTimeStamp = 0;
     m_KSStateInput = KSSTATE_STOP;
 
@@ -639,12 +647,6 @@ Init
     m_NumRenderStreams = 0;
     m_NumCaptureStreams = 0;
 
-    m_UseIRQ = TRUE;
-    if (ResourceList->NumberOfInterrupts() == 0)
-    {
-		MLOG("Resource list has no interrupts, no IRQ.");
-        m_UseIRQ = FALSE;
-    }
 	MLOG("New service group...");
     ntStatus = PcNewServiceGroup(&m_pServiceGroup,NULL);
     if (NT_SUCCESS(ntStatus) && !m_pServiceGroup)   //  keep any error
@@ -666,69 +668,6 @@ Init
         m_pPort->RegisterServiceGroup(m_pServiceGroup);
     }
 
-    if (NT_SUCCESS(ntStatus) && m_UseIRQ)
-    {
-		MLOG("We should not be using an IRQ");
-        //
-        //  Due to a bug in the InterruptSync design, we shouldn't share
-        //  the interrupt sync object.  Whoever goes away first
-        //  will disconnect it, and the other points off into nowhere.
-        //
-        //  Instead we generate our own interrupt sync object.
-        //
-       /* UnknownInterruptSync = NULL;
-
-        if (UnknownInterruptSync)
-        {
-            ntStatus =
-                UnknownInterruptSync->QueryInterface
-                (
-                    IID_IInterruptSync,
-                    (PVOID *) &m_pInterruptSync
-                );
-
-            if (!m_pInterruptSync && NT_SUCCESS(ntStatus))  //  keep any error
-            {
-                ntStatus = STATUS_INSUFFICIENT_RESOURCES;
-            }
-            if (NT_SUCCESS(ntStatus))
-            {                                                                           //  run this ISR first
-                ntStatus = m_pInterruptSync->
-                    RegisterServiceRoutine(DMusMPUInterruptServiceRoutine,PVOID(this),TRUE);
-            }
-
-        }
-        else
-        {   // create our own interruptsync mechanism.
-            ntStatus =
-                PcNewInterruptSync
-                (
-                    &m_pInterruptSync,
-                    NULL,
-                    ResourceList,
-                    0,                          // Resource Index
-                    InterruptSyncModeNormal     // Run ISRs once until we get SUCCESS
-                );
-
-            if (!m_pInterruptSync && NT_SUCCESS(ntStatus))    //  keep any error
-            {
-                ntStatus = STATUS_INSUFFICIENT_RESOURCES;
-            }
-
-            if (NT_SUCCESS(ntStatus))
-            {
-                ntStatus = m_pInterruptSync->RegisterServiceRoutine(
-                    DMusMPUInterruptServiceRoutine,
-                    PVOID(this),
-                    TRUE);          //  run this ISR first
-            }
-            if (NT_SUCCESS(ntStatus))
-            {
-                ntStatus = m_pInterruptSync->Connect();
-            }
-        }*/
-    }
-
     if (NT_SUCCESS(ntStatus))
     {
 		MLOG("Process resources");
@@ -741,13 +680,6 @@ Init
         //
         // clean up our mess
         //
-
-        // clean up the interrupt sync
-        if( m_pInterruptSync )
-        {
-            m_pInterruptSync->Release();
-            m_pInterruptSync = NULL;
-        }
 
         // clean up the service group
         if( m_pServiceGroup )
@@ -890,6 +822,7 @@ SetTechnology
 {
     PAGED_CODE();
 
+	MLOG("SetTechnology");
     NTSTATUS ntStatus = STATUS_UNSUCCESSFUL;
 
     // Fail if miniport has already been initialized.
@@ -902,44 +835,6 @@ SetTechnology
 
     return ntStatus;
 } // SetTechnology
-
-/*****************************************************************************
- * CMiniportDMusUART::PowerChangeNotify()
- *****************************************************************************
- * Handle power state change for the miniport.
- */
-#pragma code_seg("PAGE")
-STDMETHODIMP_(void)
-CMiniportDMusUART::
-PowerChangeNotify
-(
-    _In_    POWER_STATE             PowerState
-)
-{
-    PAGED_CODE();
-
-    _DbgPrintF(DEBUGLVL_VERBOSE, ("CMiniportDMusUART::PoweChangeNotify D%d", PowerState.DeviceState));
-
-    switch (PowerState.DeviceState)
-    {
-        case PowerDeviceD0:
-            if (m_PowerState.DeviceState != PowerDeviceD0)
-            {
-                if (!NT_SUCCESS(InitializeHardware(m_pInterruptSync,m_pPortBase)))
-                {
-                    _DbgPrintF(DEBUGLVL_TERSE, ("InitializeHardware failed when resuming"));
-                }
-            }
-            break;
-
-        case PowerDeviceD1:
-        case PowerDeviceD2:
-        case PowerDeviceD3:
-        default:
-            break;
-    }
-    m_PowerState.DeviceState = PowerState.DeviceState;
-} // PowerChangeNotify
 
 #pragma code_seg("PAGE")
 /*****************************************************************************
@@ -958,7 +853,7 @@ NonDelegatingQueryInterface
 {
     PAGED_CODE();
 
-    _DbgPrintF(DEBUGLVL_BLAB,("Stream::NonDelegatingQueryInterface"));
+    MLOG("Stream::NonDelegatingQueryInterface");
     ASSERT(Object);
 
     if (IsEqualGUIDAligned(Interface,IID_IUnknown))
@@ -999,20 +894,6 @@ CMiniportDMusUARTStream::~CMiniportDMusUARTStream(void)
 
     _DbgPrintF(DEBUGLVL_BLAB,("~CMiniportDMusUARTStream"));
 
-    KeCancelTimer(&m_TimerEvent);
-
-    if (m_DMKEvtQueue)
-    {
-        if (m_AllocatorMXF)
-        {
-            m_AllocatorMXF->PutMessage(m_DMKEvtQueue);
-        }
-        else
-        {
-            _DbgPrintF(DEBUGLVL_ERROR,("~CMiniportDMusUARTStream, no allocator, can't flush DMKEvts"));
-        }
-        m_DMKEvtQueue = NULL;
-    }
     if (m_AllocatorMXF)
     {
         m_AllocatorMXF->Release();
@@ -1060,9 +941,6 @@ Init
 
     _DbgPrintF(DEBUGLVL_BLAB,("Init"));
 
-    m_NumFailedMPUTries = 0;
-    m_TimerQueued = FALSE;
-    KeInitializeSpinLock(&m_DpcSpinLock);
     m_pMiniport = pMiniport;
     m_pMiniport->AddRef();
 
@@ -1072,10 +950,6 @@ Init
     m_fCapture = fCapture;
 
     m_SnapshotTimeStamp = 0;
-    m_DMKEvtQueue = NULL;
-    m_DMKEvtOffset = 0;
-
-    m_NumberOfRetries = 0;
 
     if (allocatorMXF)
     {
@@ -1087,14 +961,6 @@ Init
     {
         return STATUS_INVALID_PARAMETER;
     }
-
-    KeInitializeDpc
-    (
-        &m_Dpc,
-        &::DMusUARTTimerDPC,
-        PVOID(this)
-    );
-    KeInitializeTimer(&m_TimerEvent);
 
     return STATUS_SUCCESS;
 }
@@ -1124,11 +990,7 @@ SetState
     if (m_fCapture)
     {
         m_pMiniport->m_KSStateInput = NewState;
-        if (NewState == KSSTATE_STOP)   //  STOPping
-        {
-            m_pMiniport->m_MPUInputBufferHead = 0;   // Previously read bytes are discarded.
-            m_pMiniport->m_MPUInputBufferTail = 0;   // The entire FIFO is available.
-        }
+
     }
     return STATUS_SUCCESS;
 }
@@ -1142,17 +1004,10 @@ SetState
 STDMETHODIMP_(void)
 CMiniportDMusUART::
 Service
-(   void
+(void
 )
 {
-    _DbgPrintF(DEBUGLVL_BLAB, ("Service"));
-    if (!m_NumCaptureStreams)
-    {
-        //  we should never get here....
-        //  if we do, we must have read some trash,
-        //  so just reset the input FIFO
-        m_MPUInputBufferTail = m_MPUInputBufferHead = 0;
-    }
+	MLOG("Service");
 }
 
 #pragma code_seg("PAGE")
@@ -1166,23 +1021,23 @@ CMiniportDMusUARTStream::
 ConnectOutput(_In_  PMXF sinkMXF)
 {
     PAGED_CODE();
-
+	MLOG("ConnectOutput");
     if (m_fCapture)
     {
         if ((sinkMXF) && (m_sinkMXF == m_AllocatorMXF))
         {
-            _DbgPrintF(DEBUGLVL_BLAB, ("ConnectOutput"));
-            m_sinkMXF = sinkMXF;
+			MLOG("Assigning m_sinKMXF");
+			m_sinkMXF = sinkMXF;
             return STATUS_SUCCESS;
         }
         else
         {
-            _DbgPrintF(DEBUGLVL_TERSE, ("ConnectOutput failed"));
-        }
+			MLOG("ConnectOutput Failed")
+		}
     }
     else
     {
-        _DbgPrintF(DEBUGLVL_TERSE, ("ConnectOutput called on renderer; failed"));
+       MLOG("ConnectOutput called on renderer; failed");
     }
     return STATUS_UNSUCCESSFUL;
 }
@@ -1199,242 +1054,25 @@ DisconnectOutput(_In_   PMXF sinkMXF)
 {
     PAGED_CODE();
 
+	MLOG("DisconnectOutput");
     if (m_fCapture)
     {
         if ((m_sinkMXF == sinkMXF) || (!sinkMXF))
         {
-            _DbgPrintF(DEBUGLVL_BLAB, ("DisconnectOutput"));
+			MLOG("Assigning allocator to sink")
             m_sinkMXF = m_AllocatorMXF;
             return STATUS_SUCCESS;
         }
         else
         {
-            _DbgPrintF(DEBUGLVL_TERSE, ("DisconnectOutput failed"));
+           MLOG("DisconnectOutput failed");
         }
     }
     else
     {
-        _DbgPrintF(DEBUGLVL_TERSE, ("DisconnectOutput called on renderer; failed"));
+       MLOG("DisconnectOutput called on renderer; failed");
     }
     return STATUS_UNSUCCESSFUL;
-}
-
-#pragma code_seg()
-/*****************************************************************************
- * CMiniportDMusUARTStream::PutMessageLocked()
- *****************************************************************************
- * Now that the spinlock is held, add this message to the queue.
- *
- * Writes an outgoing MIDI message.
- * We don't sort a new message into the queue -- we append it.
- * This is fine, since the sequencer feeds us sequenced data.
- * Timestamps will ascend by design.
- */
-NTSTATUS CMiniportDMusUARTStream::PutMessageLocked(PDMUS_KERNEL_EVENT pDMKEvt)
-{
-    NTSTATUS    ntStatus = STATUS_SUCCESS;
-    PDMUS_KERNEL_EVENT  aDMKEvt;
-
-    ASSERT(KeGetCurrentIrql() == DISPATCH_LEVEL);
-
-    if (!m_fCapture)
-    {
-        _DbgPrintF(DEBUGLVL_BLAB, ("PutMessage to render stream"));
-        if (pDMKEvt)
-        {
-            // m_DpcSpinLock already held
-
-            if (m_DMKEvtQueue)
-            {
-                aDMKEvt = m_DMKEvtQueue;            //  put pDMKEvt in event queue
-
-                while (aDMKEvt->pNextEvt)
-                {
-                    aDMKEvt = aDMKEvt->pNextEvt;
-                }
-                aDMKEvt->pNextEvt = pDMKEvt;        //  here is end of queue
-            }
-            else                                    //  currently nothing in queue
-            {
-                m_DMKEvtQueue = pDMKEvt;
-                if (m_DMKEvtOffset)
-                {
-                    _DbgPrintF(DEBUGLVL_ERROR, ("PutMessage  Nothing in the queue, but m_DMKEvtOffset == %d",m_DMKEvtOffset));
-                    m_DMKEvtOffset = 0;
-                }
-            }
-
-            // m_DpcSpinLock already held
-        }
-        if (!m_TimerQueued)
-        {
-            (void) ConsumeEvents();
-        }
-    }
-    else    //  capture
-    {
-        _DbgPrintF(DEBUGLVL_BLAB, ("PutMessage to capture stream"));
-        ASSERT(NULL == pDMKEvt);
-
-        SourceEvtsToPort();
-    }
-    return ntStatus;
-}
-
-#pragma code_seg()
-/*****************************************************************************
- * CMiniportDMusUARTStream::PutMessage()
- *****************************************************************************
- * Writes an outgoing MIDI message.
- * We don't sort a new message into the queue -- we append it.
- * This is fine, since the sequencer feeds us sequenced data.
- * Timestamps will ascend by design.
- */
-NTSTATUS CMiniportDMusUARTStream::PutMessage(_In_   PDMUS_KERNEL_EVENT pDMKEvt)
-{
-    NTSTATUS            ntStatus = STATUS_SUCCESS;
-    PDMUS_KERNEL_EVENT  aDMKEvt;
-
-    ASSERT(KeGetCurrentIrql() == DISPATCH_LEVEL);
-
-    if (!m_fCapture)
-    {
-        _DbgPrintF(DEBUGLVL_BLAB, ("PutMessage to render stream"));
-        if (pDMKEvt)
-        {
-            KeAcquireSpinLockAtDpcLevel(&m_DpcSpinLock);
-
-            if (m_DMKEvtQueue)
-            {
-                aDMKEvt = m_DMKEvtQueue;            //  put pDMKEvt in event queue
-
-                while (aDMKEvt->pNextEvt)
-                {
-                    aDMKEvt = aDMKEvt->pNextEvt;
-                }
-                aDMKEvt->pNextEvt = pDMKEvt;        //  here is end of queue
-            }
-            else                                    //  currently nothing in queue
-            {
-                m_DMKEvtQueue = pDMKEvt;
-                if (m_DMKEvtOffset)
-                {
-                    _DbgPrintF(DEBUGLVL_ERROR, ("PutMessage  Nothing in the queue, but m_DMKEvtOffset == %d",m_DMKEvtOffset));
-                    m_DMKEvtOffset = 0;
-                }
-            }
-
-            KeReleaseSpinLockFromDpcLevel(&m_DpcSpinLock);
-        }
-        if (!m_TimerQueued)
-        {
-            (void) ConsumeEvents();
-        }
-    }
-    else    //  capture
-    {
-        _DbgPrintF(DEBUGLVL_BLAB, ("PutMessage to capture stream"));
-        ASSERT(NULL == pDMKEvt);
-
-        SourceEvtsToPort();
-    }
-    return ntStatus;
-}
-
-#pragma code_seg()
-/*****************************************************************************
- * CMiniportDMusUARTStream::ConsumeEvents()
- *****************************************************************************
- * Attempts to empty the render message queue.
- * Called either from DPC timer or upon IRP submittal.
-//  TODO: support packages right
-//  process the package (actually, should do this above.
-//  treat the package as a list fragment that shouldn't be sorted.
-//  better yet, go through each event in the package, and when
-//  an event is exhausted, delete it and decrement m_offset.
- */
-NTSTATUS CMiniportDMusUARTStream::ConsumeEvents(void)
-{
-    PDMUS_KERNEL_EVENT aDMKEvt;
-
-    NTSTATUS        ntStatus = STATUS_SUCCESS;
-    ULONG           bytesRemaining = 0,bytesWritten = 0;
-    LARGE_INTEGER   aMillisecIn100ns;
-
-    ASSERT(KeGetCurrentIrql() == DISPATCH_LEVEL);
-    KeAcquireSpinLockAtDpcLevel(&m_DpcSpinLock);
-
-    m_TimerQueued = FALSE;
-    while (m_DMKEvtQueue)                   //  do we have anything to play at all?
-    {
-        aDMKEvt = m_DMKEvtQueue;                            //  event we try to play
-        if (aDMKEvt->cbEvent)
-        {
-            bytesRemaining = aDMKEvt->cbEvent - m_DMKEvtOffset; //  number of bytes left in this evt
-
-            ASSERT(bytesRemaining > 0);
-            if (bytesRemaining <= 0)
-            {
-                bytesRemaining = aDMKEvt->cbEvent;
-            }
-
-            if (aDMKEvt->cbEvent <= sizeof(PBYTE))                //  short message
-            {
-                _DbgPrintF(DEBUGLVL_BLAB, ("ConsumeEvents(%02x%02x%02x%02x)",aDMKEvt->uData.abData[0],aDMKEvt->uData.abData[1],aDMKEvt->uData.abData[2],aDMKEvt->uData.abData[3]));
-                ntStatus = Write(aDMKEvt->uData.abData + m_DMKEvtOffset,bytesRemaining,&bytesWritten);
-            }
-            else if (PACKAGE_EVT(aDMKEvt))
-            {
-                ASSERT(m_DMKEvtOffset == 0);
-                m_DMKEvtOffset = 0;
-                _DbgPrintF(DEBUGLVL_BLAB, ("ConsumeEvents(Package)"));
-
-                ntStatus = PutMessageLocked(aDMKEvt->uData.pPackageEvt);  // we already own the spinlock
-
-                // null this because we are about to throw it in the allocator
-                aDMKEvt->uData.pPackageEvt = NULL;
-                aDMKEvt->cbEvent = 0;
-                bytesWritten = bytesRemaining;
-            }
-            else                //  SysEx message
-            {
-                _DbgPrintF(DEBUGLVL_BLAB, ("ConsumeEvents(%02x%02x%02x%02x)",aDMKEvt->uData.pbData[0],aDMKEvt->uData.pbData[1],aDMKEvt->uData.pbData[2],aDMKEvt->uData.pbData[3]));
-
-                ntStatus = Write(aDMKEvt->uData.pbData + m_DMKEvtOffset,bytesRemaining,&bytesWritten);
-            }
-        }   //  if (aDMKEvt->cbEvent)
-        if (STATUS_SUCCESS != ntStatus)
-        {
-            _DbgPrintF(DEBUGLVL_TERSE, ("ConsumeEvents: Write returned 0x%08x",ntStatus));
-            bytesWritten = bytesRemaining;  //  just bail on this event and try next time
-        }
-
-        ASSERT(bytesWritten <= bytesRemaining);
-        if (bytesWritten == bytesRemaining)
-        {
-            m_DMKEvtQueue = m_DMKEvtQueue->pNextEvt;
-            aDMKEvt->pNextEvt = NULL;
-
-            m_AllocatorMXF->PutMessage(aDMKEvt);    //  throw back in free pool
-            m_DMKEvtOffset = 0;                     //  start fresh on next evt
-            m_NumberOfRetries = 0;
-        }           //  but wait ... there's more!
-        else        //  our FIFO is full for now.
-        {
-            //  update our offset by that amount we did write
-            m_DMKEvtOffset += bytesWritten;
-            ASSERT(m_DMKEvtOffset < aDMKEvt->cbEvent);
-
-            _DbgPrintF(DEBUGLVL_BLAB,("ConsumeEvents tried %d, wrote %d, at offset %d",bytesRemaining,bytesWritten,m_DMKEvtOffset));
-            aMillisecIn100ns.QuadPart = -(kOneMillisec);    //  set timer, come back later
-            m_TimerQueued = TRUE;
-            m_NumberOfRetries++;
-            KeSetTimer( &m_TimerEvent, aMillisecIn100ns, &m_Dpc );
-            break;
-        }   //  we didn't write it all
-    }       //  go back, Jack, do it again (while m_DMKEvtQueue)
-    KeReleaseSpinLockFromDpcLevel(&m_DpcSpinLock);
-    return ntStatus;
 }
 
 #pragma code_seg("PAGE")
@@ -1452,6 +1090,7 @@ HandlePortParams
 {
     PAGED_CODE();
 
+	MLOG("HandlePortParams");
     NTSTATUS ntStatus;
 
     if (pRequest->Verb & KSPROPERTY_TYPE_SET)
@@ -1484,43 +1123,6 @@ HandlePortParams
     }
 
     return ntStatus;
-}
-
-#pragma code_seg()
-/*****************************************************************************
- * DMusTimerDPC()
- *****************************************************************************
- * The timer DPC callback. Thunks to a C++ member function.
- * This is called by the OS in response to the DirectMusic pin
- * wanting to wakeup later to process more DirectMusic stuff.
- */
-VOID
-NTAPI
-DMusUARTTimerDPC
-(
-    IN  PKDPC   Dpc,
-    IN  PVOID   DeferredContext,
-    IN  PVOID   SystemArgument1,
-    IN  PVOID   SystemArgument2
-)
-{
-    ASSERT(DeferredContext);
-
-    UNREFERENCED_PARAMETER(Dpc);
-    UNREFERENCED_PARAMETER(SystemArgument1);
-    UNREFERENCED_PARAMETER(SystemArgument2);
-
-    CMiniportDMusUARTStream *aStream;
-    aStream = (CMiniportDMusUARTStream *) DeferredContext;
-    if (aStream)
-    {
-        _DbgPrintF(DEBUGLVL_BLAB,("DMusUARTTimerDPC"));
-        if (false == aStream->m_fCapture)
-        {
-            (void) aStream->ConsumeEvents();
-        }
-        //  ignores return value!
-    }
 }
 
 /*****************************************************************************

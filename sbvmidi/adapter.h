@@ -3,7 +3,6 @@
 #include "dmusicks.h"
 
 
-#define MAX_MINIPORTS 1
 NTSTATUS
 CreateMiniportDMusUART
 (
@@ -45,6 +44,7 @@ NTSTATUS InstallSubdeviceVirtual(
 	_In_        PVOID               Context2,
 	_In_        PWSTR               Name,
 	_In_        REFGUID             PortClassId, //DirectMusic or MIDI
+	_In_        REFGUID             MiniportClassId, //DirectMusic or MIDI
 	_In_        PRESOURCELIST       ResourceList
 	);
 #define VLOG(...) { DbgPrint(__VA_ARGS__); DbgPrint("\n");}

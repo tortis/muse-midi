@@ -19,19 +19,6 @@
 //  + for absolute / - for relative
 #define kOneMillisec (10 * 1000)
 
-//
-// MPU401 ports
-//
-#define MPU401_REG_STATUS   0x01    // Status register
-#define MPU401_DRR          0x40    // Output ready (for command or data)
-                                    // if this bit is set, the output FIFO is FULL
-#define MPU401_DSR          0x80    // Input ready (for data)
-                                    // if this bit is set, the input FIFO is empty
-
-#define MPU401_REG_DATA     0x00    // Data in
-#define MPU401_REG_COMMAND  0x01    // Commands
-#define MPU401_CMD_RESET    0xFF    // Reset command
-#define MPU401_CMD_UART     0x3F    // Switch to UART mod
 
 
 /*****************************************************************************
@@ -43,19 +30,7 @@
  * Prototypes
  */
 
-NTSTATUS InitMPU(IN PINTERRUPTSYNC InterruptSync,IN PVOID DynamicContext);
-NTSTATUS ResetHardware(PUCHAR portBase);
 NTSTATUS ValidatePropertyRequest(IN PPCPROPERTY_REQUEST pRequest, IN ULONG ulValueSize, IN BOOLEAN fValueRequired);
-
-
-/*****************************************************************************
- * Constants
- */
-
-const BOOLEAN   COMMAND   = TRUE;
-const BOOLEAN   DATA      = FALSE;
-
-const LONG      kMPUInputBufferSize = 128;
 
 
 /*****************************************************************************
@@ -85,19 +60,13 @@ private:
     KSSTATE         m_KSStateInput;         // Miniport state (RUN/PAUSE/ACQUIRE/STOP)
     PPORTDMUS       m_pPort;                // Callback interface.
     PUCHAR          m_pPortBase;            // Base port address.
-    PINTERRUPTSYNC  m_pInterruptSync;       // Interrupt synchronization object.
     PSERVICEGROUP   m_pServiceGroup;        // Service group for capture.
     PMASTERCLOCK    m_MasterClock;          // for input data
     REFERENCE_TIME  m_InputTimeStamp;       // capture data timestamp
     USHORT          m_NumRenderStreams;     // Num active render streams.
     USHORT          m_NumCaptureStreams;    // Num active capture streams.
-    LONG            m_MPUInputBufferHead;   // Index of the newest byte in the FIFO.
-    LONG            m_MPUInputBufferTail;   // Index of the oldest empty space in the FIFO.
     GUID            m_MusicFormatTechnology;
     POWER_STATE     m_PowerState;           // Saved power state (D0 = full power, D3 = off)
-    BOOLEAN         m_fMPUInitialized;      // Is the MPU HW initialized.
-    BOOLEAN         m_UseIRQ;               // FALSE if no IRQ is used for MIDI.
-    UCHAR           m_MPUInputBuffer[kMPUInputBufferSize];  // Internal SW FIFO.
 	PVOID			m_inputStream=NULL;
 	PVOID			m_outputStream=NULL;
     /*************************************************************************
@@ -110,7 +79,6 @@ private:
     (
         IN      PRESOURCELIST   ResourceList
     );
-    NTSTATUS InitializeHardware(PINTERRUPTSYNC interruptSync,PUCHAR portBase);
 
 public:
 	VOID ForwardOutputFromSource(IN PVOID source, IN PVOID BufferAddress, IN ULONG Length);
@@ -226,20 +194,8 @@ private:
     REFERENCE_TIME      m_SnapshotTimeStamp;    // Current snapshot of miniport's input timestamp.
     PUCHAR              m_pPortBase;            // Base port address.
     BOOLEAN             m_fCapture;             // Whether this is capture.
-    long                m_NumFailedMPUTries;    // Deadman timeout for MPU hardware.
     PAllocatorMXF       m_AllocatorMXF;         // source/sink for DMus structs
     PMXF                m_sinkMXF;              // sink for DMus capture
-    PDMUS_KERNEL_EVENT  m_DMKEvtQueue;          // queue of waiting events
-    ULONG               m_NumberOfRetries;      // Number of consecutive times the h/w was busy/full
-    ULONG               m_DMKEvtOffset;         // offset into the event
-    KDPC                m_Dpc;                  // DPC for timer
-    KTIMER              m_TimerEvent;           // timer
-    BOOL                m_TimerQueued;          // whether a timer has been set
-    KSPIN_LOCK          m_DpcSpinLock;          // protects the ConsumeEvents DPC
-
-    STDMETHODIMP_(NTSTATUS) SourceEvtsToPort();
-    STDMETHODIMP_(NTSTATUS) ConsumeEvents();
-    STDMETHODIMP_(NTSTATUS) PutMessageLocked(PDMUS_KERNEL_EVENT pDMKEvt);
 
 public:
     /*************************************************************************
@@ -282,14 +238,6 @@ public:
         OUT     PULONG      BytesWritten
     );
 
-    friend VOID NTAPI
-    DMusUARTTimerDPC
-    (
-        IN      PKDPC   Dpc,
-        IN      PVOID   DeferredContext,
-        IN      PVOID   SystemArgument1,
-        IN      PVOID   SystemArgument2
-    );
     friend NTSTATUS PropertyHandler_Synth(IN PPCPROPERTY_REQUEST);
     friend STDMETHODIMP_(NTSTATUS) SnapTimeStamp(PINTERRUPTSYNC InterruptSync,PVOID pStream);
 };

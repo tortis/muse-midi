@@ -1,6 +1,26 @@
 
 #include "adapter.h"
 
+#define kUseDMusicMiniport 1
+
+#define NUM_CHANNEL_REFERENCE_NAMES 8
+
+PWSTR port_reference_names[8] = {
+	L"MIDI1",
+	L"MIDI2",
+	L"MIDI3",
+	L"MIDI4",
+	L"MIDI5",
+	L"MIDI6",
+	L"MIDI7",
+	L"MIDI8" 
+};
+
+PWSTR get_port_reference_name(ULONG i) {
+	return port_reference_names[i-1];
+}
+
+
 #pragma warning (disable : 4100 4127)
 
 extern "C"
@@ -35,8 +55,8 @@ IN PDEVICE_OBJECT   PhysicalDeviceObject
 	// Tell the class driver to add the device.
 	//
 	//http://msdn.microsoft.com/en-us/library/windows/hardware/ff537683(v=vs.85).aspx
-	//MAX_MINIPORTS gives the maximun number of subdevices. For now, we are going with just 1 port. 
-	return PcAddAdapterDevice(DriverObject, PhysicalDeviceObject, StartDevice, MAX_MINIPORTS, 0);
+	//NUM_CHANNEL_REFERENCE_NAMES gives the maximun number of subdevices. Adjust above. 
+	return PcAddAdapterDevice(DriverObject, PhysicalDeviceObject, StartDevice, NUM_CHANNEL_REFERENCE_NAMES, 0);
 }
 
 NTSTATUS
@@ -50,6 +70,7 @@ IN      PRESOURCELIST   ResourceList    // List of hardware resources.
 	ASSERT(pIrp);
 	ASSERT(ResourceList);
 	VLOG("StartDevice");
+	ULONG i;
 	if (!ResourceList)
 	{
 		VLOG("StartDevice: NULL resource list");
@@ -72,14 +93,27 @@ IN      PRESOURCELIST   ResourceList    // List of hardware resources.
 			NULL,
 			NULL    // Not physically connected to anything.
 			);*/
-
-	ntStatus = InstallSubdeviceVirtual(
-		pDeviceObject,
-		pIrp,
-		L"MIDI1",
-		CLSID_PortDMus,
-		ResourceList
-	);
+	for (i = 1; i <= NUM_CHANNEL_REFERENCE_NAMES; i++) {
+#if (kUseDMusicMiniport)
+		ntStatus = InstallSubdeviceVirtual(
+			pDeviceObject,
+			pIrp,
+			get_port_reference_name(i),
+			CLSID_PortDMus,
+			CLSID_MiniportDriverDMusUART,
+			ResourceList
+			);
+#else
+		ntStatus = InstallSubdeviceVirtual(
+			pDeviceObject,
+			pIrp,
+			get_port_reference_name(i),
+			IID_IPortMidi,
+			CLSID_MiniportDriverUart,
+			ResourceList
+			);
+#endif
+	}
 	return ntStatus;
 }
 
@@ -103,6 +137,7 @@ NTSTATUS InstallSubdeviceVirtual(
 	_In_        PVOID               Context2,
 	_In_        PWSTR               Name,
 	_In_        REFGUID             PortClassId, //DirectMusic or MIDI
+	_In_        REFGUID             MiniportClassId, //DirectMusic or MIDI
 	_In_        PRESOURCELIST       ResourceList
 	) {
 	VLOG("InstallSubdevice");
@@ -118,7 +153,7 @@ NTSTATUS InstallSubdeviceVirtual(
 		//Manually create minport driver
 		PMINIPORT miniport;
 		VLOG("Creating miniport driver...");
-		ntStatus = CreateMiniportDMusUART((PUNKNOWN*)&miniport, CLSID_MiniportDriverDMusUART, NULL, NonPagedPool); //Temporal fix, we need a new one!
+		ntStatus = CreateMiniportDMusUART((PUNKNOWN*)&miniport, MiniportClassId, NULL, NonPagedPool); //Temporal fix, we need a new one!
 		if (NT_SUCCESS(ntStatus))
 		{
 			//

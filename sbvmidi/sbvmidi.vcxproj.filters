@@ -30,7 +30,7 @@
     <ClCompile Include="..\virtualmidi\miniport.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\virtualmidi\mpu.cpp">
+    <ClCompile Include="..\virtualmidi\stream.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

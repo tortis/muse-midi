@@ -32,10 +32,9 @@ NTSTATUS WriteMPU(IN PUCHAR PortBase,IN BOOLEAN IsCommand,IN UCHAR Value);
 //  make sure we're in UART mode
 NTSTATUS ResetHardware(PUCHAR portBase)
 {
-	UNREFERENCED_PARAMETER(portBase);
     PAGED_CODE();
 
-	return STATUS_SUCCESS;
+    return WriteMPU(portBase,COMMAND,MPU401_CMD_UART);
 }
 
 #pragma code_seg("PAGE")
@@ -45,10 +44,33 @@ NTSTATUS ResetHardware(PUCHAR portBase)
 //
 NTSTATUS CMiniportDMusUART::InitializeHardware(PINTERRUPTSYNC interruptSync,PUCHAR portBase)
 {
-	UNREFERENCED_PARAMETER(interruptSync);
-	UNREFERENCED_PARAMETER(portBase);
-	PAGED_CODE();
-	return STATUS_SUCCESS;
+    PAGED_CODE();
+
+    NTSTATUS    ntStatus;
+    if (m_UseIRQ)
+    {
+        ntStatus = interruptSync->CallSynchronizedRoutine(InitMPU,PVOID(portBase));
+    }
+    else
+    {
+        ntStatus = InitMPU(NULL,PVOID(portBase));
+    }
+
+    if (NT_SUCCESS(ntStatus))
+    {
+        //
+        // Start the UART (this should trigger an interrupt).
+        //
+        ntStatus = ResetHardware(portBase);
+    }
+    else
+    {
+        _DbgPrintF(DEBUGLVL_TERSE,("*** InitMPU returned with ntStatus 0x%08x ***",ntStatus));
+    }
+
+    m_fMPUInitialized = NT_SUCCESS(ntStatus);
+
+    return ntStatus;
 }
 
 #pragma code_seg()
@@ -65,9 +87,80 @@ InitMPU
 )
 {
     UNREFERENCED_PARAMETER(InterruptSync);
-	UNREFERENCED_PARAMETER(DynamicContext);
 
-	return STATUS_SUCCESS;
+    _DbgPrintF(DEBUGLVL_BLAB, ("InitMPU"));
+    if (!DynamicContext)
+    {
+        return STATUS_INVALID_PARAMETER_2;
+    }
+
+    PUCHAR      portBase = PUCHAR(DynamicContext);
+    UCHAR       status;
+    ULONGLONG   startTime;
+    BOOLEAN     success;
+    NTSTATUS    ntStatus = STATUS_SUCCESS;
+
+    //
+    // Reset the card (puts it into "smart mode")
+    //
+    ntStatus = WriteMPU(portBase,COMMAND,MPU401_CMD_RESET);
+
+    // wait for the acknowledgement
+    // NOTE: When the Ack arrives, it will trigger an interrupt.
+    //       Normally the DPC routine would read in the ack byte and we
+    //       would never see it, however since we have the hardware locked (HwEnter),
+    //       we can read the port before the DPC can and thus we receive the Ack.
+    startTime = PcGetTimeInterval(0);
+    success = FALSE;
+    while(PcGetTimeInterval(startTime) < GTI_MILLISECONDS(50))
+    {
+        status = READ_PORT_UCHAR(portBase + MPU401_REG_STATUS);
+
+        if (UartFifoOkForRead(status))                      // Is data waiting?
+        {
+            READ_PORT_UCHAR(portBase + MPU401_REG_DATA);    // yep.. read ACK
+            success = TRUE;                                 // don't need to do more
+            break;
+        }
+        KeStallExecutionProcessor(25);  //  microseconds
+    }
+#if (DBG)
+    if (!success)
+    {
+        _DbgPrintF(DEBUGLVL_VERBOSE,("First attempt to reset the MPU didn't get ACKed.\n"));
+    }
+#endif  //  (DBG)
+
+    // NOTE: We cannot check the ACK byte because if the card was already in
+    // UART mode it will not send an ACK but it will reset.
+
+    // reset the card again
+    (void) WriteMPU(portBase,COMMAND,MPU401_CMD_RESET);
+
+                                    // wait for ack (again)
+    startTime = PcGetTimeInterval(0); // This might take a while
+    BYTE dataByte = 0;
+    success = FALSE;
+    while (PcGetTimeInterval(startTime) < GTI_MILLISECONDS(50))
+    {
+        status = READ_PORT_UCHAR(portBase + MPU401_REG_STATUS);
+        if (UartFifoOkForRead(status))                              // Is data waiting?
+        {
+            dataByte = READ_PORT_UCHAR(portBase + MPU401_REG_DATA); // yep.. read ACK
+            success = TRUE;                                         // don't need to do more
+            break;
+        }
+        KeStallExecutionProcessor(25);
+    }
+
+    if ((0xFE != dataByte) || !success)   // Did we succeed? If no second ACK, something is hosed
+    {
+        _DbgPrintF(DEBUGLVL_TERSE,("Second attempt to reset the MPU didn't get ACKed.\n"));
+        _DbgPrintF(DEBUGLVL_TERSE,("Init Reset failure error. Ack = %X", ULONG(dataByte) ) );
+        ntStatus = STATUS_IO_DEVICE_ERROR;
+    }
+
+    return ntStatus;
 }
 
 #pragma code_seg()
@@ -85,30 +178,63 @@ Write
     OUT     PULONG      BytesWritten
 )
 {
-	MLOG("Stream write. Length: %d",Length);
-	ULONG i;
-	PUCHAR cbuffer = (PUCHAR) BufferAddress;
-	for (i = 0; i < Length; i++) {
-		MLOG("Byte %d: %x", i, cbuffer[i]);
-	}
+    _DbgPrintF(DEBUGLVL_BLAB, ("Write"));
     ASSERT(BytesWritten);
     if (!BufferAddress)
     {
         Length = 0;
     }
 
+    NTSTATUS ntStatus = STATUS_SUCCESS;
 
     if (!m_fCapture)
     {
-		MLOG("Notifying miniport driver from stream...");
-		m_pMiniport->ForwardOutputFromSource(this, BufferAddress, Length);
-		*BytesWritten = Length;
-		return STATUS_SUCCESS;
+        PUCHAR  pMidiData;
+        ULONG   count;
+
+        count = 0;
+        pMidiData = PUCHAR(BufferAddress);
+
+        if (Length)
+        {
+            SYNCWRITECONTEXT context;
+            context.Miniport        = (m_pMiniport);
+            context.PortBase        = m_pPortBase;
+            context.BufferAddress   = pMidiData;
+            context.Length          = Length;
+            context.BytesRead       = &count;
+
+            if (m_pMiniport->m_UseIRQ)
+            {
+                ntStatus = m_pMiniport->m_pInterruptSync->
+                                CallSynchronizedRoutine(SynchronizedDMusMPUWrite,PVOID(&context));
+            }
+            else    //  !m_UseIRQ
+            {
+                ntStatus = SynchronizedDMusMPUWrite(NULL,PVOID(&context));
+            }       //  !m_UseIRQ
+
+            if (count == 0)
+            {
+                m_NumFailedMPUTries++;
+                if (m_NumFailedMPUTries >= 100)
+                {
+                    ntStatus = STATUS_IO_DEVICE_ERROR;
+                    m_NumFailedMPUTries = 0;
+                }
+            }
+            else
+            {
+                m_NumFailedMPUTries = 0;
+            }
+        }           //  if we have data at all
+        *BytesWritten = count;
     }
-    else   
+    else    //  called write on the read stream
     {
-        return STATUS_INVALID_DEVICE_REQUEST;
+        ntStatus = STATUS_INVALID_DEVICE_REQUEST;
     }
+    return ntStatus;
 }
 
 #pragma code_seg()
@@ -124,11 +250,42 @@ SynchronizedDMusMPUWrite
     IN      PVOID           syncWriteContext
 )
 {
-	UNREFERENCED_PARAMETER(InterruptSync);
-	UNREFERENCED_PARAMETER(syncWriteContext);
+    PSYNCWRITECONTEXT context;
+    context = (PSYNCWRITECONTEXT)syncWriteContext;
+    ASSERT(context->Miniport);
+    ASSERT(context->PortBase);
+    ASSERT(context->BufferAddress);
+    ASSERT(context->Length);
+    ASSERT(context->BytesRead);
 
-	MLOG("SynchronizedDMusMPUWrite");
-	return STATUS_SUCCESS;
+    PUCHAR  pChar = PUCHAR(context->BufferAddress);
+    NTSTATUS ntStatus,readStatus;
+    ntStatus = STATUS_SUCCESS;
+    //
+    // while we're not there yet, and
+    // while we don't have to wait on an aligned byte (including 0)
+    // (we never wait on a byte.  Better to come back later)
+    readStatus = DMusMPUInterruptServiceRoutine(InterruptSync,PVOID(context->Miniport));
+    while (  (*(context->BytesRead) < context->Length)
+          && (  TryMPU(context->PortBase)
+             || (*(context->BytesRead)%3)
+          )  )
+    {
+        ntStatus = WriteMPU(context->PortBase,DATA,*pChar);
+        if (NT_SUCCESS(ntStatus))
+        {
+            pChar++;
+            *(context->BytesRead) = *(context->BytesRead) + 1;
+//            readStatus = DMusMPUInterruptServiceRoutine(InterruptSync,PVOID(context->Miniport));
+        }
+        else
+        {
+            _DbgPrintF(DEBUGLVL_TERSE,("SynchronizedDMusMPUWrite failed (0x%08x)",ntStatus));
+            break;
+        }
+    }
+    readStatus = DMusMPUInterruptServiceRoutine(InterruptSync,PVOID(context->Miniport));
+    return ntStatus;
 }
 
 #define kMPUPollTimeout 2
@@ -145,8 +302,34 @@ TryMPU
     IN      PUCHAR      PortBase
 )
 {
-	UNREFERENCED_PARAMETER(PortBase);
-	return TRUE;
+    BOOLEAN success;
+    USHORT  numPolls;
+    UCHAR   status;
+
+    _DbgPrintF(DEBUGLVL_BLAB, ("TryMPU"));
+    numPolls = 0;
+
+    while (numPolls < kMPUPollTimeout)
+    {
+        status = READ_PORT_UCHAR(PortBase + MPU401_REG_STATUS);
+
+        if (UartFifoOkForWrite(status)) // Is this a good time to write data?
+        {
+            break;
+        }
+        numPolls++;
+    }
+    if (numPolls >= kMPUPollTimeout)
+    {
+        success = FALSE;
+        _DbgPrintF(DEBUGLVL_BLAB, ("TryMPU failed"));
+    }
+    else
+    {
+        success = TRUE;
+    }
+
+    return success;
 }
 
 #pragma code_seg()
@@ -163,11 +346,37 @@ WriteMPU
     IN      UCHAR       Value
 )
 {
-	UNREFERENCED_PARAMETER(PortBase);
-	UNREFERENCED_PARAMETER(IsCommand);
-	UNREFERENCED_PARAMETER(Value);
+    _DbgPrintF(DEBUGLVL_BLAB, ("WriteMPU"));
+    NTSTATUS ntStatus = STATUS_IO_DEVICE_ERROR;
 
-	return STATUS_SUCCESS;
+    if (!PortBase)
+    {
+        _DbgPrintF(DEBUGLVL_TERSE, ("O: PortBase is zero\n"));
+        return ntStatus;
+    }
+    PUCHAR deviceAddr = PortBase + MPU401_REG_DATA;
+
+    if (IsCommand)
+    {
+        deviceAddr = PortBase + MPU401_REG_COMMAND;
+    }
+
+    ULONGLONG startTime = PcGetTimeInterval(0);
+
+    while (PcGetTimeInterval(startTime) < GTI_MILLISECONDS(50))
+    {
+        UCHAR status
+        = READ_PORT_UCHAR(PortBase + MPU401_REG_STATUS);
+
+        if (UartFifoOkForWrite(status)) // Is this a good time to write data?
+        {                               // yep (Jon comment)
+            WRITE_PORT_UCHAR(deviceAddr,Value);
+            _DbgPrintF(DEBUGLVL_BLAB, ("WriteMPU emitted 0x%02x",Value));
+            ntStatus = STATUS_SUCCESS;
+            break;
+        }
+    }
+    return ntStatus;
 }
 
 #pragma code_seg()
@@ -207,32 +416,6 @@ SnapTimeStamp(PINTERRUPTSYNC InterruptSync,PVOID pStream)
  * No need to touch the hardware, just read from our SW FIFO.
  *
  */
-VOID CMiniportDMusUARTStream::ForwardEventsToPort(IN PVOID inputBuffer, IN ULONG Length) {
-	MLOG("Input stream, forward events to port (%p,%d)...", inputBuffer, Length);
-	PDMUS_KERNEL_EVENT  aDMKEvt;
-	PBYTE bbuffer = (PBYTE)inputBuffer;
-	NTSTATUS ntStatus = STATUS_SUCCESS;
-	if (m_AllocatorMXF == NULL) return;
-	m_AllocatorMXF->GetMessage(&aDMKEvt);
-	if (Length > sizeof(PBYTE)) {
-		MLOG("Message is too long. Max: %d. Current: %d", sizeof(PBYTE), Length);
-	}
-	else {
-		MLOG("Copying data to kernel event...");
-		for (aDMKEvt->cbEvent = 0; aDMKEvt->cbEvent < Length; aDMKEvt->cbEvent++) {
-			aDMKEvt->uData.abData[aDMKEvt->cbEvent] = bbuffer[aDMKEvt->cbEvent];
-		}
-		MLOG("Snap timestamp...");
-		ntStatus = SnapTimeStamp(NULL, PVOID(this));
-		aDMKEvt->ullPresTime100ns = m_SnapshotTimeStamp;
-		aDMKEvt->usChannelGroup = 1;
-		aDMKEvt->usFlags = DMUS_KEF_EVENT_INCOMPLETE;
-		MLOG("Fowarding message to port driver...")
-		(void)m_sinkMXF->PutMessage(aDMKEvt);
-
-	}
-}
-
 STDMETHODIMP_(NTSTATUS)
 CMiniportDMusUARTStream::SourceEvtsToPort()
 {
