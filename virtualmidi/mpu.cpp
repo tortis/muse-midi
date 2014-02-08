@@ -212,7 +212,7 @@ VOID CMiniportDMusUARTStream::ForwardEventsToPort(IN PVOID inputBuffer, IN ULONG
 	PDMUS_KERNEL_EVENT  aDMKEvt;
 	PBYTE bbuffer = (PBYTE)inputBuffer;
 	NTSTATUS ntStatus = STATUS_SUCCESS;
-
+	if (m_AllocatorMXF == NULL) return;
 	m_AllocatorMXF->GetMessage(&aDMKEvt);
 	if (Length > sizeof(PBYTE)) {
 		MLOG("Message is too long. Max: %d. Current: %d", sizeof(PBYTE), Length);

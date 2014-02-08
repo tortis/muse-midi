@@ -393,6 +393,17 @@ CreateMiniportDMusUART
                         PoolType,
                         PMINIPORTDMUS);
 }
+VOID CMiniportDMusUART::StreamDestroying(IN PVOID source, IN BOOL capture) {
+	MLOG("Destroying stream...");
+	if (capture) {
+		MLOG("Destroying input stream...");
+		m_inputStream = NULL;
+	}
+	else {
+		MLOG("Destroying output stream...");
+		m_outputStream = NULL;
+	}
+}
 VOID CMiniportDMusUART::ForwardOutputFromSource(IN PVOID source, IN PVOID BufferAddress, IN ULONG Length) {
 	MLOG("Forwarding event to capture stream, if available")
 	if (source == m_outputStream) {
@@ -404,6 +415,7 @@ VOID CMiniportDMusUART::ForwardOutputFromSource(IN PVOID source, IN PVOID Buffer
 		delegate->ForwardEventsToPort(BufferAddress, Length);
 	}
 }
+
 #pragma code_seg("PAGE")
 /*****************************************************************************
  * CMiniportDMusUART::ProcessResources()
@@ -1011,10 +1023,12 @@ CMiniportDMusUARTStream::~CMiniportDMusUARTStream(void)
     {
         if (m_fCapture)
         {
+			m_pMiniport->StreamDestroying(this, TRUE);
             m_pMiniport->m_NumCaptureStreams--;
         }
         else
         {
+			m_pMiniport->StreamDestroying(this, FALSE);
             m_pMiniport->m_NumRenderStreams--;
         }
 

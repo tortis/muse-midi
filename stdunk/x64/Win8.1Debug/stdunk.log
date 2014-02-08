@@ -1,13 +1,13 @@
-﻿Compilación iniciada a las 06/02/2014 20:31:25.
-     1>Proyecto "C:\Users\Alberto\Desktop\sbvmidi\sbvmidi\stdunk\stdunk.vcxproj" en el nodo 3 (Build destinos).
+﻿Compilación iniciada a las 08/02/2014 15:42:42.
+     1>Proyecto "C:\Users\Alberto\Documents\GitHub\sbvmidi\stdunk\stdunk.vcxproj" en el nodo 2 (Build destinos).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /Ix64\Win8.1Debug\ /I"C:\Program Files (x86)\Windows Kits\8.1\Include\KM" /I"C:\Program Files (x86)\Windows Kits\8.1\Include\KM" /Zi /nologo /W3 /WX /Od /Oi /Oy- /D _WIN64 /D _AMD64_ /D AMD64 /D DEPRECATE_DDK_FUNCTIONS=1 /D MSC_NOOPT /D _WIN32_WINNT=0x0603 /D WINVER=0x0603 /D WINNT=1 /D NTDDI_VERSION=0x06030000 /D DBG=1 /D _WIN32 /D UNICODE /D _UNICODE /D DEBUG_LEVEL=DEBUGLVL_TERSE /GF /Gm- /Zp8 /GS /Gy /fp:precise /Zc:wchar_t- /Zc:forScope- /GR- /Fo"x64\Win8.1Debug\\" /Fd"x64\Win8.1Debug\vc120.pdb" /Gz /wd4748 /wd4603 /wd4627 /wd4986 /wd4987 /wd4996 /FI"C:\Program Files (x86)\Windows Kits\8.1\Include\Shared\warning.h" /errorReport:prompt /kernel -cbstring -d2epilogunwind /d1import_no_registry /d2AllowCompatibleILVersions /d2Zi+ stdunk.cpp
          stdunk.cpp
        Lib:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\Lib.exe /OUT:"x64\Win8.1Debug\stdunk.lib" /NOLOGO /MACHINE:X64 x64\Win8.1Debug\stdunk.obj
-         stdunk.vcxproj -> C:\Users\Alberto\Desktop\sbvmidi\sbvmidi\stdunk\x64\Win8.1Debug\stdunk.lib
-     1>Compilación del proyecto terminada "C:\Users\Alberto\Desktop\sbvmidi\sbvmidi\stdunk\stdunk.vcxproj" (Build destinos).
+         stdunk.vcxproj -> C:\Users\Alberto\Documents\GitHub\sbvmidi\stdunk\x64\Win8.1Debug\stdunk.lib
+     1>Compilación del proyecto terminada "C:\Users\Alberto\Documents\GitHub\sbvmidi\stdunk\stdunk.vcxproj" (Build destinos).
 
 Compilación correcta.
 
-Tiempo transcurrido 00:00:02.72
+Tiempo transcurrido 00:00:01.62

@@ -114,6 +114,7 @@ private:
 
 public:
 	VOID ForwardOutputFromSource(IN PVOID source, IN PVOID BufferAddress, IN ULONG Length);
+	VOID StreamDestroying(IN PVOID source, IN BOOL capture);
     /*************************************************************************
      * The following two macros are from STDUNK.H.  DECLARE_STD_UNKNOWN()
      * defines inline IUnknown implementations that use CUnknown's aggregation

@@ -5,7 +5,7 @@ Signature="$Windows NT$"
 Class=MEDIA
 Provider=%AldoIlsant%
 ClassGUID={4d36e96c-e325-11ce-bfc1-08002be10318}
-DriverVer=02/06/2014,17.56.7.963
+DriverVer=02/08/2014,15.44.14.14
 
 [SourceDisksNames]
 222=%DiskInfo%,,,
@@ -23,10 +23,10 @@ sbvmidi.sys=222
 %MfgName%=DeviceList,NTAMD64
 
 [DeviceList]
-%teVirtualMIDI.DeviceDesc32%=teVMIDI,teVirtualMIDI
+%teVirtualMIDI.DeviceDesc32%=teVMIDI,sbVirtualMIDIDevice
 
 [DeviceList.NTAMD64]
-%teVirtualMIDI.DeviceDesc64%=teVMIDI,teVirtualMIDI
+%teVirtualMIDI.DeviceDesc64%=teVMIDI,sbVirtualMIDIDevice
 
 [DestinationDirs]
 teVMIDIDrv32.CopyList=12,
@@ -69,11 +69,21 @@ Needs=KS.Registration, WDMAUDIO.Registration
 CopyFiles=teVMIDIDrv32.CopyList,teVMIDIInt32.CopyList
 AddReg=teVMIDI.AddReg
 
+[teVMIDI.NTx86.Interfaces]
+AddInterface=%KSCATEGORY_AUDIO%,%KSNAME_Wave%,MSVAD.I.Wave
+AddInterface=%KSCATEGORY_RENDER%,%KSNAME_Wave%,MSVAD.I.Wave
+AddInterface=%KSCATEGORY_CAPTURE%,%KSNAME_Wave%,MSVAD.I.Wave
+
 [teVMIDI.NTamd64]
 Include=ks.inf,wdmaudio.inf
 Needs=KS.Registration, WDMAUDIO.Registration
 CopyFiles=teVMIDIDrv64.CopyList,teVMIDIInt64.CopyList,teVMIDIIntWOW.CopyList
 AddReg=teVMIDI.AddReg64
+
+[teVMIDI.NTamd64.Interfaces]
+AddInterface=%KSCATEGORY_AUDIO%,%KSNAME_Wave%,MSVAD.I.Wave
+AddInterface=%KSCATEGORY_RENDER%,%KSNAME_Wave%,MSVAD.I.Wave
+AddInterface=%KSCATEGORY_CAPTURE%,%KSNAME_Wave%,MSVAD.I.Wave
 
 [teVMIDI.NTx86.Services]
 include=wdmaudio.inf
@@ -102,9 +112,23 @@ ServiceBinary=%12%\sbvmidi.sys
 ;======================================================
 ; COMMON
 ;======================================================
+
+[MSVAD.I.Wave]
+AddReg=MSVAD.I.Wave.AddReg
+[MSVAD.I.Wave.AddReg]
+HKR,,CLSID,,%Proxy.CLSID%
+HKR,,FriendlyName,,%MSVAD.Wave.szPname%
+
+
 [Strings]
 AldoIlsant="AldoIlsant.com"
 MfgName="AldoIlsant.com"
+Proxy.CLSID="{17CCA71B-ECD7-11D0-B908-00A0C9223196}"
+MSVAD.Wave.szPname="MIDI1"
+KSCATEGORY_AUDIO="{6994AD04-93EF-11D0-A3CC-00A0C9223196}"
+KSCATEGORY_RENDER="{65E8773E-8F56-11D0-A3B9-00A0C9223196}"
+KSCATEGORY_CAPTURE="{65E8773D-8F56-11D0-A3B9-00A0C9223196}"
+KSNAME_Wave="MIDI1"
 teVirtualMIDI.DeviceDesc32="SBVIMIDI - Virtual MIDI Driver x86"
 teVirtualMIDI.Midi.szPname32="SBVIMIDI - Virtual MIDI Driver x86"
 teVirtualMIDI.DeviceDesc64="SBVIMIDI - Virtual MIDI Driver x64"
