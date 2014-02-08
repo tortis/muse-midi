@@ -1,13 +1,11 @@
-﻿Compilación iniciada a las 08/02/2014 21:17:23.
+﻿Compilación iniciada a las 08/02/2014 21:43:16.
      1>Proyecto "C:\Users\Alberto\Documents\GitHub\sbvmidi\sbvmidi\sbvmidi.vcxproj" en el nodo 2 (Build destinos).
      1>StampInf:
          C:\Program Files (x86)\Windows Kits\8.1\bin\x86\stampinf.exe -d "*" -a "amd64" -v "*" -k "1.11" -u "1.11.0" -f x64\Win8.1Debug\sbvmidi.inf 
-         Stamping x64\Win8.1Debug\sbvmidi.inf [Version] section with DriverVer=02/08/2014,21.17.23.919
+         Stamping x64\Win8.1Debug\sbvmidi.inf [Version] section with DriverVer=02/08/2014,21.43.17.35
        ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /Ix64\Win8.1Debug\ /Zi /nologo /W4 /WX /Od /Oi /Oy- /D _WIN64 /D _AMD64_ /D AMD64 /D DEPRECATE_DDK_FUNCTIONS=1 /D MSC_NOOPT /D _WIN32_WINNT=0x0603 /D WINVER=0x0603 /D WINNT=1 /D NTDDI_VERSION=0x06030000 /D DBG=1 /GF /Gm- /Zp8 /GS /Gy /fp:precise /Zc:wchar_t- /Zc:forScope- /GR- /Fo"x64\Win8.1Debug\\" /Fd"x64\Win8.1Debug\vc120.pdb" /Gz /wd4748 /wd4603 /wd4627 /wd4986 /wd4987 /wd4996 /FI"C:\Program Files (x86)\Windows Kits\8.1\Include\Shared\warning.h" /errorReport:prompt /kernel -cbstring -d2epilogunwind /d1import_no_registry /d2AllowCompatibleILVersions /d2Zi+ ..\virtualmidi\miniport.cpp ..\virtualmidi\stream.cpp
-         miniport.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\CL.exe /c /Ix64\Win8.1Debug\ /Zi /nologo /W4 /WX /Od /Oi /Oy- /D _WIN64 /D _AMD64_ /D AMD64 /D DEPRECATE_DDK_FUNCTIONS=1 /D MSC_NOOPT /D _WIN32_WINNT=0x0603 /D WINVER=0x0603 /D WINNT=1 /D NTDDI_VERSION=0x06030000 /D DBG=1 /GF /Gm- /Zp8 /GS /Gy /fp:precise /Zc:wchar_t- /Zc:forScope- /GR- /Fo"x64\Win8.1Debug\\" /Fd"x64\Win8.1Debug\vc120.pdb" /Gz /wd4748 /wd4603 /wd4627 /wd4986 /wd4987 /wd4996 /FI"C:\Program Files (x86)\Windows Kits\8.1\Include\Shared\warning.h" /errorReport:prompt /kernel -cbstring -d2epilogunwind /d1import_no_registry /d2AllowCompatibleILVersions /d2Zi+ ..\virtualmidi\stream.cpp
          stream.cpp
-         Generando código...
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Alberto\Documents\GitHub\sbvmidi\x64\Win8.1Debug\sbvmidi.sys" /VERSION:"6.3" /INCREMENTAL:NO /NOLOGO /WX /SECTION:"INIT,d" "C:\Program Files (x86)\Windows Kits\8.1\lib\winV6.3\KM\x64\BufferOverflowFastFailK.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\winV6.3\KM\x64\ntoskrnl.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\winV6.3\KM\x64\hal.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\winV6.3\KM\x64\wmilib.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\winV6.3\KM\x64\BufferOverflowFastFailK.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\winV6.3\KM\x64\ntoskrnl.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\winV6.3\KM\x64\hal.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\winV6.3\KM\x64\wmilib.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\winV6.3\KM\x64\portcls.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\winV6.3\KM\x64\ksguid.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\winV6.3\KM\x64\libcntpr.lib" /NODEFAULTLIB /MANIFEST:NO /DEBUG /PDB:"C:\Users\Alberto\Documents\GitHub\sbvmidi\x64\Win8.1Debug\sbvmidi.pdb" /SUBSYSTEM:NATIVE,"6.03" /Driver /OPT:REF /OPT:ICF /ENTRY:"GsDriverEntry" /RELEASE /IMPLIB:"C:\Users\Alberto\Documents\GitHub\sbvmidi\x64\Win8.1Debug\sbvmidi.lib" /MERGE:"_TEXT=.text;_PAGE=PAGE" /MACHINE:X64 /PROFILE /kernel /IGNORE:4198,4010,4037,4039,4065,4070,4078,4087,4089,4221,4108,4088,4218,4218,4235 /osversion:6.3 /pdbcompress /debugtype:pdata x64\Win8.1Debug\miniport.obj
          x64\Win8.1Debug\stream.obj
@@ -23,4 +21,4 @@
 
 Compilación correcta.
 
-Tiempo transcurrido 00:00:03.55
+Tiempo transcurrido 00:00:02.67

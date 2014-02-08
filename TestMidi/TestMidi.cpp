@@ -31,6 +31,8 @@ void CALLBACK midiInCallback(
 
 int _tmain(int argc, _TCHAR* argv[])
 {
+	unsigned int num_long_msg = 2;
+	unsigned int ncurr_long_msg = 0;
 	HMIDIIN inHandle = 0;
 	unsigned int num = midiInGetNumDevs();
 	printf("Number of MIDI In devices: %d\n ", num);
@@ -101,11 +103,14 @@ int _tmain(int argc, _TCHAR* argv[])
 			//Second byte is the note itself: 3c=60=Middle Do (C)
 			//Third byte is note "velocity", usually implemented as volume
 			//Fourth byte (MSB) is unused.
+		resend_message:
+			ncurr_long_msg++;
+			MIDIHDR h = { 0 };
+
+			if (ncurr_long_msg > 2) goto end;
 			Sleep(1000);
 			printf("Sending long message...\n");
-
-			MIDIHDR h = { 0 };
-			char message[12] = {0x00,0x00,0x3c,0x90,0x00,0x00,0x3c,0x90,0x00,0x00,0x3c,0x90};
+			char message[12] = {0x3c,0x90,0x3c,0x90,0x3c,0x90};
 
 			h.lpData =message;
 			h.dwBytesRecorded = h.dwBufferLength = (DWORD)12;
@@ -135,6 +140,7 @@ int _tmain(int argc, _TCHAR* argv[])
 						}
 						else {
 							printf("Message sent!\n");
+							goto resend_message;
 							break;
 						}
 					}
@@ -146,9 +152,10 @@ int _tmain(int argc, _TCHAR* argv[])
 			else {
 				printf("MidiOutPrepareHeader failed...\n");
 			}
+			end:
 			Sleep(1000);
 
-			printf("Closing...");
+			printf("Closing...\n");
 			midiOutClose(handle);
 			if (inHandle != 0) {
 				midiInClose(inHandle);

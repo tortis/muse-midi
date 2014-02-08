@@ -1,4 +1,4 @@
-﻿Compilación iniciada a las 08/02/2014 21:21:06.
+﻿Compilación iniciada a las 08/02/2014 21:44:32.
      1>Proyecto "C:\Users\Alberto\Documents\GitHub\sbvmidi\sbvmidi Package\sbvmidi Package.vcxproj" en el nodo 2 (Build destinos).
      1>Inf2Cat:
          C:\Program Files (x86)\Windows Kits\8.1\bin\x86\inf2cat.exe /os:6_3_x64 /driver:"C:\Users\Alberto\Documents\GitHub\sbvmidi\x64\Win8.1Debug\sbvmidi Package\\" 
@@ -22,4 +22,4 @@
 
 Compilación correcta.
 
-Tiempo transcurrido 00:00:01.81
+Tiempo transcurrido 00:00:02.08

@@ -449,7 +449,7 @@ NTSTATUS CMiniportDMusUARTStream::PutMessage(_In_   PDMUS_KERNEL_EVENT pDMKEvt)
 	ULONG bytesRemaining = 0;
 	ULONG bytesWritten = 0;
 	NTSTATUS ntStatus;
-	MLOG("PutMessage");
+	MLOG("PutMessage with kernel event %p",pDMKEvt);
 	if (pDMKEvt == NULL) {
 		MLOG("Event is null, do nothing");
 		return STATUS_SUCCESS;
