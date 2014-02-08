@@ -1,0 +1,15 @@
+﻿Compilación iniciada a las 06/02/2014 17:56:07.
+     1>Proyecto "C:\Users\Alberto\Desktop\sbvmidi\sbvmidi\sbvmidi\sbvmidi.vcxproj" en el nodo 2 (Build destinos).
+     1>StampInf:
+         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\stampinf.exe -d "*" -a "amd64" -v "*" -k "1.11" -u "1.11.0" -f x64\Win7Release\sbvmidi.inf 
+         Stamping x64\Win7Release\sbvmidi.inf [Version] section with DriverVer=02/06/2014,17.56.7.963
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Alberto\Desktop\sbvmidi\sbvmidi\x64\Win7Release\sbvmidi.sys" /VERSION:"6.3" /INCREMENTAL:NO /NOLOGO /WX /SECTION:"INIT,d" "C:\Program Files (x86)\Windows Kits\8.1\lib\win7\KM\x64\BufferOverflowK.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\win7\KM\x64\ntoskrnl.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\win7\KM\x64\hal.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\win7\KM\x64\wmilib.lib" /NODEFAULTLIB /MANIFEST:NO /DEBUG /PDB:"C:\Users\Alberto\Desktop\sbvmidi\sbvmidi\x64\Win7Release\sbvmidi.pdb" /SUBSYSTEM:NATIVE,"6.01" /Driver /OPT:REF /OPT:ICF /ENTRY:"GsDriverEntry" /RELEASE /IMPLIB:"C:\Users\Alberto\Desktop\sbvmidi\sbvmidi\x64\Win7Release\sbvmidi.lib" /MERGE:"_TEXT=.text;_PAGE=PAGE" /MACHINE:X64 /PROFILE /kernel /IGNORE:4198,4010,4037,4039,4065,4070,4078,4087,4089,4221,4108,4088,4218,4218,4235 /osversion:6.3 /pdbcompress /debugtype:pdata x64\Win7Release\adapter.obj
+     1>adapter.obj : error LNK2019: símbolo externo __imp_PcInitializeAdapterDriver sin resolver al que se hace referencia en la función DriverEntry
+     1>adapter.obj : error LNK2019: símbolo externo __imp_PcAddAdapterDevice sin resolver al que se hace referencia en la función "long __cdecl AddDevice(struct _DRIVER_OBJECT *,struct _DEVICE_OBJECT *)" (?AddDevice@@YAJPEAU_DRIVER_OBJECT@@PEAU_DEVICE_OBJECT@@@Z)
+     1>C:\Users\Alberto\Desktop\sbvmidi\sbvmidi\x64\Win7Release\sbvmidi.sys : fatal error LNK1120: 2 externos sin resolver
+     1>Compilación del proyecto terminada "C:\Users\Alberto\Desktop\sbvmidi\sbvmidi\sbvmidi\sbvmidi.vcxproj" (Build destinos) -- ERROR.
+
+ERROR al compilar.
+
+Tiempo transcurrido 00:00:00.93

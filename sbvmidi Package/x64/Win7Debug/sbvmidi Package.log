@@ -1,0 +1,25 @@
+﻿Compilación iniciada a las 06/02/2014 21:06:53.
+     1>Proyecto "C:\Users\Alberto\Desktop\sbvmidi\sbvmidi\sbvmidi Package\sbvmidi Package.vcxproj" en el nodo 2 (Build destinos).
+     1>Inf2Cat:
+         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\inf2cat.exe /os:7_x64 /driver:"C:\Users\Alberto\Desktop\sbvmidi\sbvmidi\x64\Win7Debug\sbvmidi Package\\" 
+         .........................
+         Signability test complete.
+         
+         Errors:
+         None
+         
+         Warnings:
+         None
+         
+         Catalog generation complete.
+         C:\Users\Alberto\Desktop\sbvmidi\sbvmidi\x64\Win7Debug\sbvmidi Package\sbvmidi.cat
+       DriverTestSign:
+         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\signtool.exe sign /ph /sha1 "4E1F54E719FD65177E85333AED8D088AB10D3A74" 
+         Done Adding Additional Store
+         Successfully signed: C:\Users\Alberto\Desktop\sbvmidi\sbvmidi\x64\Win7Debug\sbvmidi Package\sbvmidi.cat
+         
+     1>Compilación del proyecto terminada "C:\Users\Alberto\Desktop\sbvmidi\sbvmidi\sbvmidi Package\sbvmidi Package.vcxproj" (Build destinos).
+
+Compilación correcta.
+
+Tiempo transcurrido 00:00:01.07

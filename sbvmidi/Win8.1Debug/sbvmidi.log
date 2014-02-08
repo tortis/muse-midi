@@ -1,0 +1,19 @@
+﻿Compilación iniciada a las 07/02/2014 15:34:02.
+     1>Proyecto "C:\Users\Alberto\Desktop\sbvmidi\sbvmidi\sbvmidi\sbvmidi.vcxproj" en el nodo 2 (Build destinos).
+     1>StampInf:
+         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\stampinf.exe -d "*" -a "x86" -v "*" -k "1.11" -u "1.11.0" -f Win8.1Debug\sbvmidi.inf 
+         Stamping Win8.1Debug\sbvmidi.inf [Version] section with DriverVer=02/07/2014,15.34.3.443
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /IWin8.1Debug\ /Zi /nologo /W4 /WX /Od /Oi /Oy- /D _X86_=1 /D i386=1 /D STD_CALL /D DEPRECATE_DDK_FUNCTIONS=1 /D MSC_NOOPT /D _WIN32_WINNT=0x0603 /D WINVER=0x0603 /D WINNT=1 /D NTDDI_VERSION=0x06030000 /D DBG=1 /GF /Gm- /Zp8 /GS /Gy /fp:precise /Zc:wchar_t- /Zc:forScope- /GR- /Fo"Win8.1Debug\\" /Fd"Win8.1Debug\vc120.pdb" /Gz /wd4748 /wd4603 /wd4627 /wd4986 /wd4987 /wd4996 /FI"C:\Program Files (x86)\Windows Kits\8.1\Include\Shared\warning.h" /analyze- /errorReport:prompt /kernel -cbstring /d1import_no_registry /d2AllowCompatibleILVersions /d2Zi+ adapter.cpp
+         adapter.cpp
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Alberto\Desktop\sbvmidi\sbvmidi\Win8.1Debug\sbvmidi.sys" /VERSION:"6.3" /INCREMENTAL:NO /NOLOGO /WX /SECTION:"INIT,d" "C:\Program Files (x86)\Windows Kits\8.1\lib\winV6.3\KM\x86\BufferOverflowFastFailK.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\winV6.3\KM\x86\ntoskrnl.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\winV6.3\KM\x86\hal.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\winV6.3\KM\x86\wmilib.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\winV6.3\KM\x86\BufferOverflowFastFailK.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\winV6.3\KM\x86\ntoskrnl.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\winV6.3\KM\x86\hal.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\winV6.3\KM\x86\wmilib.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\winV6.3\KM\x86\portcls.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\winV6.3\KM\x86\ksguid.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\winV6.3\KM\x86\dxguid.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\winV6.3\KM\x86\libcntpr.lib" /NODEFAULTLIB /MANIFEST:NO /DEBUG /PDB:"C:\Users\Alberto\Desktop\sbvmidi\sbvmidi\Win8.1Debug\sbvmidi.pdb" /SUBSYSTEM:NATIVE,"6.03" /Driver /OPT:REF /OPT:ICF /ENTRY:"GsDriverEntry@8" /RELEASE /IMPLIB:"C:\Users\Alberto\Desktop\sbvmidi\sbvmidi\Win8.1Debug\sbvmidi.lib" /MERGE:"_TEXT=.text;_PAGE=PAGE" /MACHINE:X86 /PROFILE /kernel /IGNORE:4198,4010,4037,4039,4065,4070,4078,4087,4089,4221 /osversion:6.3 /pdbcompress /debugtype:pdata Win8.1Debug\miniport.obj
+         Win8.1Debug\MPU.obj
+         Win8.1Debug\adapter.obj
+         C:\Users\Alberto\Desktop\sbvmidi\sbvmidi\stdunk\Win8.1Debug\stdunk.lib
+     1>LINK : fatal error LNK1181: no se puede abrir el archivo de entrada 'C:\Program Files (x86)\Windows Kits\8.1\lib\winV6.3\KM\x86\dxguid.lib'
+     1>Compilación del proyecto terminada "C:\Users\Alberto\Desktop\sbvmidi\sbvmidi\sbvmidi\sbvmidi.vcxproj" (Build destinos) -- ERROR.
+
+ERROR al compilar.
+
+Tiempo transcurrido 00:00:03.18

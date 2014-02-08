@@ -1,0 +1,16 @@
+Inf2Cat Tool Output:
+.........................
+Signability test complete.
+
+Errors:
+None
+
+Warnings:
+None
+
+Catalog generation complete.
+C:\Users\Alberto\Desktop\sbvmidi\sbvmidi\x64\Win8.1Debug\sbvmidi Package\sbvmidi.cat
+FileTracker : error FTK1013: could not find unicode byte order marker in the file tracking log file: C:\Users\Alberto\Desktop\sbvmidi\sbvmidi\sbvmidi Package\x64\Win8.1Debug\inf2cat.read.1.tlog. The tracking data is invalid.
+
+FileTracker : error FTK1013: could not find unicode byte order marker in the file tracking log file: C:\Users\Alberto\Desktop\sbvmidi\sbvmidi\sbvmidi Package\x64\Win8.1Debug\inf2cat.write.1.tlog. The tracking data is invalid.
+
