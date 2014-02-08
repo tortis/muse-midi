@@ -39,8 +39,6 @@ Write
     {
         Length = 0;
     }
-
-
     if (!m_fCapture)
     {
 		MLOG("Notifying miniport driver from stream...");
@@ -76,14 +74,6 @@ SnapTimeStamp(PINTERRUPTSYNC InterruptSync,PVOID pStream)
     return STATUS_SUCCESS;
 }
 
-/*****************************************************************************
- * CMiniportDMusUARTStream::SourceEvtsToPort()
- *****************************************************************************
- *
- * Reads incoming MIDI data, feeds into DMus events.
- * No need to touch the hardware, just read from our SW FIFO.
- *
- */
 VOID CMiniportDMusUARTStream::ForwardEventsToPort(IN PVOID inputBuffer, IN ULONG Length) {
 	MLOG("Input stream, forward events to port (%p,%d)...", inputBuffer, Length);
 	PDMUS_KERNEL_EVENT  aDMKEvt;
@@ -92,20 +82,22 @@ VOID CMiniportDMusUARTStream::ForwardEventsToPort(IN PVOID inputBuffer, IN ULONG
 	if (m_AllocatorMXF == NULL) return;
 	m_AllocatorMXF->GetMessage(&aDMKEvt);
 	if (Length > sizeof(PBYTE)) {
-		MLOG("Message is too long. Max: %d. Current: %d", sizeof(PBYTE), Length);
+		MLOG("Message is too long for standard. Using pbdata. Max: %d. Current: %d", sizeof(PBYTE), Length);
+		aDMKEvt->cbEvent = (USHORT)Length;
+		aDMKEvt->usFlags = DMUS_KEF_EVENT_COMPLETE;
+		aDMKEvt->uData.pbData = (PBYTE)inputBuffer;
 	}
 	else {
 		MLOG("Copying data to kernel event...");
 		for (aDMKEvt->cbEvent = 0; aDMKEvt->cbEvent < Length; aDMKEvt->cbEvent++) {
 			aDMKEvt->uData.abData[aDMKEvt->cbEvent] = bbuffer[aDMKEvt->cbEvent];
 		}
-		MLOG("Snap timestamp...");
-		ntStatus = SnapTimeStamp(NULL, PVOID(this));
-		aDMKEvt->ullPresTime100ns = m_SnapshotTimeStamp;
-		aDMKEvt->usChannelGroup = 1;
 		aDMKEvt->usFlags = DMUS_KEF_EVENT_INCOMPLETE;
-		MLOG("Fowarding message to port driver...")
-		(void)m_sinkMXF->PutMessage(aDMKEvt);
-
 	}
+	MLOG("Snap timestamp...");
+	ntStatus = SnapTimeStamp(NULL, PVOID(this));
+	aDMKEvt->ullPresTime100ns = m_SnapshotTimeStamp;
+	aDMKEvt->usChannelGroup = 1;
+	MLOG("Fowarding message to port driver...")
+	(void)m_sinkMXF->PutMessage(aDMKEvt);
 }

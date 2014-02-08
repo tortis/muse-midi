@@ -5,7 +5,7 @@ Signature="$Windows NT$"
 Class=MEDIA
 Provider=%AldoIlsant%
 ClassGUID={4d36e96c-e325-11ce-bfc1-08002be10318}
-DriverVer=02/08/2014,20.37.39.824
+DriverVer=02/08/2014,21.17.23.919
 
 [SourceDisksNames]
 222=%DiskInfo%,,,

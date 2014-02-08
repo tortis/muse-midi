@@ -81,10 +81,10 @@ int _tmain(int argc, _TCHAR* argv[])
 				printf("Open failed: %d", ret);
 				return 1;
 			}
-			printf("Starting IN MIDI...");
+			printf("Starting IN MIDI...\n");
 			MMRESULT res = midiInStart(inHandle);
 
-			printf("Sending chord...");
+			printf("Sending chord...\n");
 			midiOutShortMsg(handle, 0x00403C90);
 			midiOutShortMsg(handle, 0x00404090);
 			midiOutShortMsg(handle, 0x00404390);
@@ -92,7 +92,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			//In a real device, the notes will start sounding here. Wait a bit, then close the notes
 			Sleep(1000);
 
-			printf("Turnin off chord...");
+			printf("Turning off chord...\n");
 			//Turn them off. Volume 0.
 			midiOutShortMsg(handle, 0x00003C90);
 			midiOutShortMsg(handle, 0x00004090);
@@ -102,6 +102,53 @@ int _tmain(int argc, _TCHAR* argv[])
 			//Third byte is note "velocity", usually implemented as volume
 			//Fourth byte (MSB) is unused.
 			Sleep(1000);
+			printf("Sending long message...\n");
+
+			MIDIHDR h = { 0 };
+			char message[12] = {0x00,0x00,0x3c,0x90,0x00,0x00,0x3c,0x90,0x00,0x00,0x3c,0x90};
+
+			h.lpData =message;
+			h.dwBytesRecorded = h.dwBufferLength = (DWORD)12;
+
+			if (midiOutPrepareHeader(handle, &h, sizeof (MIDIHDR)) == MMSYSERR_NOERROR)
+			{
+				printf("Header prepared, sending...\n");
+				MMRESULT res = midiOutLongMsg(handle, &h, sizeof (MIDIHDR));
+
+				if (res == MMSYSERR_NOERROR)
+				{
+					while ((h.dwFlags & MHDR_DONE) == 0) {
+						printf("Waiting for message...\n");
+						Sleep(1);
+					}
+
+					int count = 500; // 1 sec timeout
+
+					while (--count >= 0)
+					{
+						printf("Attempting to unprepare header...\n");
+						res = midiOutUnprepareHeader(handle, &h, sizeof (MIDIHDR));
+
+						if (res == MIDIERR_STILLPLAYING) {
+							printf("Still playing, wait...\n");
+							Sleep(2);
+						}
+						else {
+							printf("Message sent!\n");
+							break;
+						}
+					}
+				}
+				else {
+					printf("Error in midiOutLongMsg\n");
+				}
+			}
+			else {
+				printf("MidiOutPrepareHeader failed...\n");
+			}
+			Sleep(1000);
+
+			printf("Closing...");
 			midiOutClose(handle);
 			if (inHandle != 0) {
 				midiInClose(inHandle);

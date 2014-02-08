@@ -456,7 +456,13 @@ NTSTATUS CMiniportDMusUARTStream::PutMessage(_In_   PDMUS_KERNEL_EVENT pDMKEvt)
 	}
 	//Basically just write and free the allocator
 	bytesRemaining = pDMKEvt->cbEvent;
-	ntStatus = Write(pDMKEvt->uData.abData, bytesRemaining, &bytesWritten);
+	if (bytesRemaining > sizeof(PBYTE)) {
+		MLOG("Message is bigger than size of PBYTE, using pbData for writing...")
+		ntStatus = Write(pDMKEvt->uData.pbData, bytesRemaining, &bytesWritten);
+	}
+	else {
+		ntStatus = Write(pDMKEvt->uData.abData, bytesRemaining, &bytesWritten);
+	}
 	pDMKEvt->uData.pPackageEvt = NULL;
 	pDMKEvt->cbEvent = 0;
 	m_AllocatorMXF->PutMessage(pDMKEvt);    //  throw back in free pool
