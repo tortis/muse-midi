@@ -9,9 +9,6 @@ CreateMiniportDMusUART
 OUT     PUNKNOWN *  Unknown,
 IN      REFCLSID,
 IN      PUNKNOWN    UnknownOuter    OPTIONAL,
-_When_((PoolType & NonPagedPoolMustSucceed) != 0,
-__drv_reportError("Must succeed pool allocations are forbidden. "
-"Allocation failures cause a system crash"))
 IN      POOL_TYPE   PoolType
 );
 

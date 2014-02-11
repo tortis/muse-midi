@@ -5,7 +5,7 @@ Signature="$Windows NT$"
 Class=MEDIA
 Provider=%AldoIlsant%
 ClassGUID={4d36e96c-e325-11ce-bfc1-08002be10318}
-DriverVer = 08/15/2012,1.1.2.25
+DriverVer = 02/11/2014,1.1.2.25
 
 [SourceDisksNames]
 222=%DiskInfo%,,,
@@ -14,7 +14,7 @@ DriverVer = 08/15/2012,1.1.2.25
 111=%DiskInfo%,,,
 
 [SourceDisksFiles.amd64]
-sbvmidi.sys=111
+sbvmidi64.sys=111
 
 [SourceDisksFiles]
 sbvmidi.sys=222
@@ -44,7 +44,7 @@ teVMIDIIntWOW.CopyList=10,SysWOW64
 sbvmidi.sys
 
 [teVMIDIDrv64.CopyList]
-sbvmidi.sys
+sbvmidi64.sys
 
 [teVMIDI.AddReg]
 HKR,,AssociatedFilters,,"wdmaud,swmidi"
@@ -55,7 +55,7 @@ HKR,Drivers\midi\wdmaud.drv,Description,,%teVirtualMIDI.DeviceDesc32%
 
 [teVMIDI.AddReg64]
 HKR,,AssociatedFilters,,"wdmaud,swmidi"
-HKR,,Driver,,sbvmidi.sys
+HKR,,Driver,,sbvmidi64.sys
 HKR,Drivers,SubClasses,,"midi"
 HKR,Drivers\midi\wdmaud.drv,Driver,,wdmaud.drv
 HKR,Drivers\midi\wdmaud.drv,Description,,%teVirtualMIDI.DeviceDesc64%
@@ -166,7 +166,7 @@ DisplayName=%teVirtualMIDI.SvcDesc64%
 ServiceType=1
 StartType=3
 ErrorControl=1
-ServiceBinary=%12%\sbvmidi.sys
+ServiceBinary=%12%\sbvmidi64.sys
 
 ;======================================================
 ; COMMON

@@ -27,13 +27,13 @@
     <ClCompile Include="adapter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\virtualmidi\miniport.cpp">
+    <ClCompile Include="miniport.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\virtualmidi\stream.cpp">
+    <ClCompile Include="stdunk.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\stdunk\stdunk.cpp">
+    <ClCompile Include="stream.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -41,7 +41,7 @@
     <ClInclude Include="adapter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\virtualmidi\private.h">
+    <ClInclude Include="private.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

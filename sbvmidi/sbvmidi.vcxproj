@@ -175,6 +175,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8.1 Release|x64'">
     <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+    <TargetName>sbvmidi64</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Win8 Debug|x64'">
     <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
@@ -245,7 +246,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Win8.1 Release|x64'">
     <Link>
-      <AdditionalDependencies>%(AdditionalDependencies);$(KernelBufferOverflowLib);$(DDK_LIB_PATH)\ntoskrnl.lib;$(DDK_LIB_PATH)\hal.lib;$(DDK_LIB_PATH)\wmilib.lib;$(DDK_LIB_PATH)\portcls.lib;$(DDK_LIB_PATH)\ksguid.lib;$(DDK_LIB_PATH)\dxguid.lib;$(DDK_LIB_PATH)\libcntpr.lib</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies);$(KernelBufferOverflowLib);$(DDK_LIB_PATH)\ntoskrnl.lib;$(DDK_LIB_PATH)\hal.lib;$(DDK_LIB_PATH)\wmilib.lib;$(DDK_LIB_PATH)\portcls.lib;$(DDK_LIB_PATH)\ksguid.lib;$(DDK_LIB_PATH)\libcntpr.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -256,14 +257,14 @@
     <FilesToPackage Include="@(Inf->'%(CopyOutput)')" Condition="'@(Inf)'!=''" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\stdunk\stdunk.cpp" />
-    <ClCompile Include="..\virtualmidi\miniport.cpp" />
-    <ClCompile Include="..\virtualmidi\stream.cpp" />
     <ClCompile Include="adapter.cpp" />
+    <ClCompile Include="miniport.cpp" />
+    <ClCompile Include="stdunk.cpp" />
+    <ClCompile Include="stream.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\virtualmidi\private.h" />
     <ClInclude Include="adapter.h" />
+    <ClInclude Include="private.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
