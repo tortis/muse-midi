@@ -1,20 +1,5 @@
-﻿Compilación iniciada a las 08/02/2014 19:46:33.
-     1>Proyecto "C:\Users\Alberto\Documents\GitHub\sbvmidi\sbvmidi Package\sbvmidi Package.vcxproj" en el nodo 2 (Build destinos).
-     1>Inf2Cat:
-         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\inf2cat.exe /os:7_x64 /driver:"C:\Users\Alberto\Documents\GitHub\sbvmidi\x64\Win7Release\sbvmidi Package\\" 
-         .........................
-         Signability test complete.
-         
-         Errors:
-         None
-         
-         Warnings:
-         None
-         
-         Catalog generation complete.
-         C:\Users\Alberto\Documents\GitHub\sbvmidi\x64\Win7Release\sbvmidi Package\sbvmidi.cat
-     1>Compilación del proyecto terminada "C:\Users\Alberto\Documents\GitHub\sbvmidi\sbvmidi Package\sbvmidi Package.vcxproj" (Build destinos).
+﻿Compilación iniciada a las 11/02/2014 15:57:03.
 
 Compilación correcta.
 
-Tiempo transcurrido 00:00:01.74
+Tiempo transcurrido 00:00:00.15

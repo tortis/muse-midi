@@ -14,4 +14,7 @@
       <UniqueIdentifier>{BF036631-7ED7-4D66-8BE8-8FFDB6A38BA1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="*.txt;*.htm;*.html" />
+  </ItemGroup>
 </Project>

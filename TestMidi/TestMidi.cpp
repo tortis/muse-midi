@@ -13,22 +13,36 @@ void CALLBACK midiInCallback(
 	DWORD_PTR dwParam1,
 	DWORD_PTR dwParam2
 	) {
+	PMIDIHDR header;
+	unsigned int i;
 	printf("MIDI CALLBACK! Number of callbacks: %d\n",++ncallbacks);
 	switch (wMsg) {
 	case MIM_CLOSE: printf("MIM_CLOSE\n"); break;
 	case MIM_DATA: 
 		printf("MIM_DATA\n"); 
 		printf("Timestamp: %d\n", dwParam2);
-		printf("MIDI data: %x\n", dwParam1);
+		printf("MIDI data: %X\n", dwParam1);
 		break;
 	case MIM_ERROR:printf("MIM_ERROR\n"); break;
-	case MIM_LONGDATA:printf("MIM_LONGDATA\n"); break;
+	case MIM_LONGDATA:
+		printf("MIM_LONGDATA\n"); 
+		printf("Timestamp: %d\n", dwParam2);
+		header = (PMIDIHDR)dwParam1;
+		printf("Bytes recorded: %d\n", header->dwBytesRecorded);
+		for (i = 0; i < header->dwBytesRecorded;i++) {
+			printf("Message[%d]=%x\n", i, header->lpData[i]);
+		}
+		break;
 	case MIM_LONGERROR:printf("MIM_LONGERROR\n"); break;
 	case MIM_MOREDATA:printf("MIM_MOREDATA\n"); break;
 	case MIM_OPEN:printf("MIM_OPEN\n"); break;
 	}
 }
+#define MIDIHDR_CNT 10
+//#define MIDI_PORT L"loopMIDI Port"
+#define MIDI_PORT L"MIDI1"
 
+MIDIHDR mMidiHdrs[MIDIHDR_CNT];
 int _tmain(int argc, _TCHAR* argv[])
 {
 	unsigned int num_long_msg = 2;
@@ -36,6 +50,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	HMIDIIN inHandle = 0;
 	unsigned int num = midiInGetNumDevs();
 	printf("Number of MIDI In devices: %d\n ", num);
+	printf("Searching for port: %S\n", MIDI_PORT);
 	printf("Printing MIDI In device names...");
 	for (UINT i = 0; i < num; ++i)
 	{
@@ -44,13 +59,24 @@ int _tmain(int argc, _TCHAR* argv[])
 		if (midiInGetDevCaps(i, &mc, sizeof (mc)) == MMSYSERR_NOERROR)
 			printf("%ls\n", mc.szPname);
 		//If we find our device, set a callback
-		if (!wcscmp(mc.szPname, L"MIDI1")) {
+		if (!wcscmp(mc.szPname, MIDI_PORT )) {
 			printf("Found input device\n!");
 
 			MMRESULT err = midiInOpen(&inHandle, i,
 				(DWORD_PTR)midiInCallback,
 				0,
 				CALLBACK_FUNCTION);
+			//Prepare some midi IN buffers
+			const int kDataBufLen = 512;
+			int idx;
+			for (idx = 0; idx < MIDIHDR_CNT; ++idx)
+			{
+				mMidiHdrs[idx].lpData = (LPSTR) ::malloc(kDataBufLen);
+				mMidiHdrs[idx].dwBufferLength = kDataBufLen;
+				MMRESULT res;
+				res = midiInPrepareHeader(inHandle, &mMidiHdrs[idx], (UINT)sizeof(MIDIHDR));
+				res = midiInAddBuffer(inHandle, &mMidiHdrs[idx], sizeof(MIDIHDR));
+			}
 		}
 	}
 
@@ -64,7 +90,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		if (midiOutGetDevCaps(i, &mc, sizeof (mc)) == MMSYSERR_NOERROR)
 			printf("%ls\n", mc.szPname);
-		if (!wcscmp(mc.szPname,L"MIDI1")) {
+		if (!wcscmp(mc.szPname,MIDI_PORT)) {
 			printf("Found output device\n!");
 			HMIDIOUT handle;
 			printf("Opening...");
@@ -106,18 +132,19 @@ int _tmain(int argc, _TCHAR* argv[])
 		resend_message:
 			ncurr_long_msg++;
 			MIDIHDR h = { 0 };
-
+			HANDLE hbuffer = NULL;
 			if (ncurr_long_msg > 2) goto end;
 			Sleep(1000);
-			printf("Sending long message...\n");
-			char message[12] = {0x3c,0x90,0x3c,0x90,0x3c,0x90};
-
-			h.lpData =message;
-			h.dwBytesRecorded = h.dwBufferLength = (DWORD)12;
-
+			printf("Sending SysEx message...\n");
+			char message[] = { 0xF0, 0x41, 0x10, 0x042, 0x12, 0x040, 0x00, 0x7f, 0x00, 0x01, 0x41, 0xF7};
+			hbuffer = GlobalAlloc(GHND, sizeof(message));
+			h.lpData=(LPSTR)GlobalLock(hbuffer);
+			h.dwBytesRecorded = h.dwBufferLength = sizeof(message);
+			h.dwFlags = 0;
 			if (midiOutPrepareHeader(handle, &h, sizeof (MIDIHDR)) == MMSYSERR_NOERROR)
 			{
 				printf("Header prepared, sending...\n");
+				memcpy(h.lpData, &message[0], sizeof(message));
 				MMRESULT res = midiOutLongMsg(handle, &h, sizeof (MIDIHDR));
 
 				if (res == MMSYSERR_NOERROR)
@@ -155,6 +182,8 @@ int _tmain(int argc, _TCHAR* argv[])
 			end:
 			Sleep(1000);
 
+			GlobalUnlock(hbuffer);
+			GlobalFree(hbuffer);
 			printf("Closing...\n");
 			midiOutClose(handle);
 			if (inHandle != 0) {

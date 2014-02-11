@@ -256,6 +256,7 @@
     <FilesToPackage Include="@(Inf->'%(CopyOutput)')" Condition="'@(Inf)'!=''" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\stdunk\stdunk.cpp" />
     <ClCompile Include="..\virtualmidi\miniport.cpp" />
     <ClCompile Include="..\virtualmidi\stream.cpp" />
     <ClCompile Include="adapter.cpp" />
@@ -263,16 +264,6 @@
   <ItemGroup>
     <ClInclude Include="..\virtualmidi\private.h" />
     <ClInclude Include="adapter.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\stdunk\stdunk.vcxproj">
-      <Project>{353651bd-56f4-4213-a53f-328eb8ba727c}</Project>
-      <Private>false</Private>
-      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
-      <CopyLocalSatelliteAssemblies>false</CopyLocalSatelliteAssemblies>
-      <LinkLibraryDependencies>true</LinkLibraryDependencies>
-      <UseLibraryDependencyInputs>false</UseLibraryDependencyInputs>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

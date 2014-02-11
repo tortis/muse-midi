@@ -84,7 +84,7 @@ VOID CMiniportDMusUARTStream::ForwardEventsToPort(IN PVOID inputBuffer, IN ULONG
 	if (Length > sizeof(PBYTE)) {
 		aDMKEvt->cbEvent = (USHORT)Length;
 		MLOG("Message is too long for standard. Using pbdata. Max: %d. Current: %d", sizeof(PBYTE), Length);
-		aDMKEvt->usFlags = DMUS_KEF_EVENT_INCOMPLETE;
+		aDMKEvt->usFlags = DMUS_KEF_EVENT_COMPLETE;
 		aDMKEvt->uData.pbData = (PBYTE)inputBuffer;
 	}
 	else {
