@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DEFECTS>
+<OACRDEFECTCOUNT>3</OACRDEFECTCOUNT>
+<OACRERRORCOUNT>0</OACRERRORCOUNT>
+<DEFECT _seq="1"><SFA><LINE>393</LINE><COLUMN>40</COLUMN><FILENAME>miniport.cpp</FILENAME><FILEPATH>c:\users\alberto\documents\github\sbvmidi\sbvmidi\</FILEPATH></SFA><DEFECTCODE>28170</DEFECTCODE><DESCRIPTION>The function 'StreamDestroying' has been declared to be in a paged segment, but neither PAGED_CODE nor PAGED_CODE_LOCKED was found.</DESCRIPTION><FUNCTION>CMiniportDMusUART::StreamDestroying</FUNCTION><FUNCLINE>393</FUNCLINE><PATH/></DEFECT>
+<DEFECT _seq="2"><SFA><LINE>404</LINE><COLUMN>47</COLUMN><FILENAME>miniport.cpp</FILENAME><FILEPATH>c:\users\alberto\documents\github\sbvmidi\sbvmidi\</FILEPATH></SFA><DEFECTCODE>28170</DEFECTCODE><DESCRIPTION>The function 'ForwardOutputFromSource' has been declared to be in a paged segment, but neither PAGED_CODE nor PAGED_CODE_LOCKED was found.</DESCRIPTION><FUNCTION>CMiniportDMusUART::ForwardOutputFromSource</FUNCTION><FUNCLINE>404</FUNCLINE><PATH/></DEFECT>
+<DEFECT _seq="3"><SFA><LINE>444</LINE><COLUMN>44</COLUMN><FILENAME>miniport.cpp</FILENAME><FILEPATH>c:\users\alberto\documents\github\sbvmidi\sbvmidi\</FILEPATH></SFA><DEFECTCODE>28170</DEFECTCODE><DESCRIPTION>The function 'PutMessage' has been declared to be in a paged segment, but neither PAGED_CODE nor PAGED_CODE_LOCKED was found.</DESCRIPTION><FUNCTION>CMiniportDMusUARTStream::PutMessage</FUNCTION><FUNCLINE>444</FUNCLINE><PATH/></DEFECT>
+</DEFECTS>

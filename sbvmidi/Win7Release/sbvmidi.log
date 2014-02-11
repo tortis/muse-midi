@@ -1,0 +1,22 @@
+﻿Compilación iniciada a las 11/02/2014 14:51:28.
+     1>Proyecto "C:\Users\Alberto\Documents\GitHub\sbvmidi\sbvmidi\sbvmidi.vcxproj" en el nodo 2 (Build destinos).
+     1>StampInf:
+         C:\Program Files (x86)\Windows Kits\8.1\bin\x86\stampinf.exe -d "*" -a "x86" -v "*" -k "1.11" -u "1.11.0" -f Win7Release\sbvmidi.inf 
+         Stamping Win7Release\sbvmidi.inf [Version] section with DriverVer=02/11/2014,14.51.29.33
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /IWin7Release\ /Zi /nologo /W4 /WX /Ox /Os /Oy- /D _X86_=1 /D i386=1 /D STD_CALL /D _WIN32_WINNT=0x0601 /D WINVER=0x0601 /D WINNT=1 /D NTDDI_VERSION=0x06010000 /GF /Gm- /Zp8 /GS /Gy /fp:precise /Zc:wchar_t- /Zc:forScope- /GR- /Fo"Win7Release\\" /Fd"Win7Release\vc120.pdb" /Gz /wd4603 /wd4627 /wd4986 /wd4987 /wd4996 /FI"C:\Program Files (x86)\Windows Kits\8.1\Include\Shared\warning.h" /analyze- /errorReport:prompt /kernel -cbstring  /d1nodatetime /d1import_no_registry /d2AllowCompatibleILVersions /d2Zi+ ..\virtualmidi\miniport.cpp ..\virtualmidi\stream.cpp adapter.cpp
+         miniport.cpp
+         stream.cpp
+         adapter.cpp
+         Generando código...
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Alberto\Documents\GitHub\sbvmidi\Win7Release\sbvmidi.sys" /VERSION:"6.3" /INCREMENTAL:NO /NOLOGO /WX /SECTION:"INIT,d" "C:\Program Files (x86)\Windows Kits\8.1\lib\win7\KM\x86\memcmp.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\win7\KM\x86\BufferOverflowK.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\win7\KM\x86\ntoskrnl.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\win7\KM\x86\hal.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\win7\KM\x86\wmilib.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\win7\KM\x86\BufferOverflowK.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\win7\KM\x86\ntoskrnl.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\win7\KM\x86\hal.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\win7\KM\x86\wmilib.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\win7\KM\x86\portcls.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\win7\KM\x86\ksguid.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\win7\KM\x86\dxguid.lib" "C:\Program Files (x86)\Windows Kits\8.1\lib\win7\KM\x86\libcntpr.lib" /NODEFAULTLIB /MANIFEST:NO /DEBUG /PDB:"C:\Users\Alberto\Documents\GitHub\sbvmidi\Win7Release\sbvmidi.pdb" /SUBSYSTEM:NATIVE,"6.01" /Driver /OPT:REF /OPT:ICF /ENTRY:"GsDriverEntry@8" /RELEASE /IMPLIB:"C:\Users\Alberto\Documents\GitHub\sbvmidi\Win7Release\sbvmidi.lib" /MERGE:"_TEXT=.text;_PAGE=PAGE" /MACHINE:X86 /PROFILE /SAFESEH /kernel /IGNORE:4198,4010,4037,4039,4065,4070,4078,4087,4089,4221 /osversion:6.3 /pdbcompress /debugtype:pdata Win7Release\miniport.obj
+         Win7Release\stream.obj
+         Win7Release\adapter.obj
+         C:\Users\Alberto\Documents\GitHub\sbvmidi\stdunk\Win7Release\stdunk.lib
+     1>LINK : fatal error LNK1181: no se puede abrir el archivo de entrada 'C:\Program Files (x86)\Windows Kits\8.1\lib\win7\KM\x86\dxguid.lib'
+     1>Compilación del proyecto terminada "C:\Users\Alberto\Documents\GitHub\sbvmidi\sbvmidi\sbvmidi.vcxproj" (Build destinos) -- ERROR.
+
+ERROR al compilar.
+
+Tiempo transcurrido 00:00:01.79
