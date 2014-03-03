@@ -6,14 +6,14 @@
 #define NUM_CHANNEL_REFERENCE_NAMES 8
 
 PWSTR port_reference_names[8] = {
-	L"MIDI1",
-	L"MIDI2",
-	L"MIDI3",
-	L"MIDI4",
-	L"MIDI5",
-	L"MIDI6",
-	L"MIDI7",
-	L"MIDI8" 
+	L"AutoTheory1",
+	L"AutoTheory2",
+	L"AutoTheory3",
+	L"AutoTheory4",
+	L"AutoTheory5",
+	L"AutoTheory6",
+	L"AutoTheory7",
+	L"AutoTheory8" 
 };
 
 PWSTR get_port_reference_name(ULONG i) {
