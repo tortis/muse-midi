@@ -1,13 +1,11 @@
-/*****************************************************************************
- * stdunk.cpp - standard unknown implementation
- *****************************************************************************
- * Copyright (c) 1997-2000 Microsoft Corporation.  All Rights Reserved.
- *
- */
+/****************************************************************************
+* Copyright (C) 2016 Autotheory
+* All rights reserved
+*
+****************************************************************************/
 
 #include "portcls.h"
 #include "stdunk.h"
-
 
 /*****************************************************************************
  * CUnknown implementation
@@ -40,9 +38,6 @@ CUnknown::~CUnknown(void)
 {
 }
 
-
-
-
 /*****************************************************************************
  * INonDelegatingUnknown implementation
  */
@@ -72,11 +67,11 @@ STDMETHODIMP_(ULONG) CUnknown::NonDelegatingRelease(void)
     ASSERT(m_lRefCount > 0);
 
     if (InterlockedDecrement(&m_lRefCount) == 0)
-	{
+    {
         m_lRefCount++;
         delete this;
         return 0;
-	}
+    }
 
     return ULONG(m_lRefCount); 
 }

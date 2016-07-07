@@ -29,21 +29,19 @@ sbvmidi.sys=222
 %teVirtualMIDI.DeviceDesc64%=teVMIDI,sbVirtualMIDIDevice
 
 [DestinationDirs]
-teVMIDIDrv32.CopyList=12,
-teVMIDIDrv64.CopyList=12,
-teVMIDIInt32.CopyList=11,
-teVMIDIInt64.CopyList=11,
-teVMIDIIntWOW.CopyList=10,SysWOW64
-
-
+teVMIDIDrv32=12,
+teVMIDIDrv64=12,
+teVMIDIInt32=11,
+teVMIDIInt64=11,
+teVMIDIIntWOW=10,SysWOW64
 
 ;======================================================
 ; teVMIDI
 ;======================================================
-[teVMIDIDrv32.CopyList]
+[teVMIDIDrv32]
 sbvmidi.sys
 
-[teVMIDIDrv64.CopyList]
+[teVMIDIDrv64]
 sbvmidi64.sys
 
 [teVMIDI.AddReg]
@@ -66,15 +64,13 @@ HKR,Drivers\midi\wdmaud.drv,Description,,%teVirtualMIDI.DeviceDesc64%
 [teVMIDI.NTx86]
 Include=ks.inf,wdmaudio.inf
 Needs=KS.Registration, WDMAUDIO.Registration
-CopyFiles=teVMIDIDrv32.CopyList,teVMIDIInt32.CopyList
+CopyFiles=teVMIDIDrv32
 AddReg=teVMIDI.AddReg
-
-
 
 [teVMIDI.NTamd64]
 Include=ks.inf,wdmaudio.inf
 Needs=KS.Registration, WDMAUDIO.Registration
-CopyFiles=teVMIDIDrv64.CopyList,teVMIDIInt64.CopyList,teVMIDIIntWOW.CopyList
+CopyFiles= teVMIDIDrv64
 AddReg=teVMIDI.AddReg64
 
 [teVMIDI.NTx86.Interfaces]
