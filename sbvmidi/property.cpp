@@ -17,6 +17,10 @@
 const WCHAR wszDescOut[] = L"DMusic MPU-401 Out ";
 const WCHAR wszDescIn[] = L"DMusic MPU-401 In ";
 
+
+/*****************************************************************************
+* PropertyHandler_Synth
+****************************************************************************/
 #pragma code_seg("PAGE")
 NTSTATUS PropertyHandler_Synth
 (
@@ -27,7 +31,7 @@ NTSTATUS PropertyHandler_Synth
 
     PAGED_CODE();
 
-    MLOG("PropertyHandler synth");
+    LOG(DEBUG, "PropertyHandler synth");
 
     if (pRequest->Verb & KSPROPERTY_TYPE_BASICSUPPORT)
     {
@@ -73,7 +77,7 @@ NTSTATUS PropertyHandler_Synth
         switch (pRequest->PropertyItem->Id)
         {
         case KSPROPERTY_SYNTH_CAPS:
-            MLOG("PropertyHandler_Synth:KSPROPERTY_SYNTH_CAPS");
+            LOG(DEBUG, "PropertyHandler_Synth:KSPROPERTY_SYNTH_CAPS");
 
             if (pRequest->Verb & KSPROPERTY_TYPE_SET)
             {
@@ -135,7 +139,7 @@ NTSTATUS PropertyHandler_Synth
             break;
 
         case KSPROPERTY_SYNTH_PORTPARAMETERS:
-            MLOG("PropertyHandler_Synth:KSPROPERTY_SYNTH_PORTPARAMETERS");
+            LOG(DEBUG, "PropertyHandler_Synth:KSPROPERTY_SYNTH_PORTPARAMETERS");
             {
                 CMiniportDMusUARTStream *aStream;
 
@@ -152,7 +156,7 @@ NTSTATUS PropertyHandler_Synth
             break;
 
         case KSPROPERTY_SYNTH_CHANNELGROUPS:
-            MLOG("PropertyHandler_Synth:KSPROPERTY_SYNTH_CHANNELGROUPS");
+            LOG(DEBUG, "PropertyHandler_Synth:KSPROPERTY_SYNTH_CHANNELGROUPS");
 
             ntStatus = ValidatePropertyRequest(pRequest, sizeof(ULONG), TRUE);
             if (NT_SUCCESS(ntStatus))
@@ -163,7 +167,7 @@ NTSTATUS PropertyHandler_Synth
             break;
 
         case KSPROPERTY_SYNTH_LATENCYCLOCK:
-            MLOG("PropertyHandler_Synth:KSPROPERTY_SYNTH_LATENCYCLOCK");
+            LOG(DEBUG, "PropertyHandler_Synth:KSPROPERTY_SYNTH_LATENCYCLOCK");
 
             if (pRequest->Verb & KSPROPERTY_TYPE_SET)
             {
@@ -193,7 +197,7 @@ NTSTATUS PropertyHandler_Synth
             break;
 
         default:
-            MLOG("Unhandled property in PropertyHandler_Synth");
+            LOG(WARN, "Unhandled property in PropertyHandler_Synth");
             break;
         }
     }

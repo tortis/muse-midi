@@ -19,7 +19,7 @@ CMiniportDMusUARTStream::~CMiniportDMusUARTStream(void)
 {
     PAGED_CODE();
 
-    MLOG(("~CMiniportDMusUARTStream"));
+    LOG(DEBUG, ("~CMiniportDMusUARTStream"));
 
     if (m_AllocatorMXF)
     {
@@ -47,23 +47,23 @@ NTSTATUS CMiniportDMusUARTStream::Write
     _In_  PDMUS_KERNEL_EVENT  writeEvent
 )
 {
-    MLOG("Stream write.");
+    LOG(DEBUG, "Stream write.");
 
     NTSTATUS status = STATUS_SUCCESS;
 
     if (writeEvent == NULL)
     {
-        //LOG
+        LOG(ERROR, "Invalid writeEvent handle (null value).");
         return STATUS_INVALID_PARAMETER;
     }
 
     if (m_fCapture)
     {
-        MLOG("Notifying miniport driver from stream...");
+        LOG(DEBUG, "Notifying miniport driver from stream...");
         status = m_sinkMXF->PutMessage(writeEvent);
         if (!NT_SUCCESS(status))
         {
-            //LOG
+            LOG(ERROR, "Failed to put message status=0x%x.", status);
         }
     }
     
@@ -75,6 +75,10 @@ NTSTATUS CMiniportDMusUARTStream::Write
     return status;
 }
 
+/*****************************************************************************
+* CMiniportDMusUARTStream::CopyEvent()
+*****************************************************************************
+*/
 #pragma code_seg()
 NTSTATUS CMiniportDMusUARTStream::CopyEvent
 (
@@ -87,7 +91,7 @@ NTSTATUS CMiniportDMusUARTStream::CopyEvent
 
     if (captureEvent == NULL)
     {
-        //LOG
+        LOG(ERROR, "Invalid captureEvent handle (null value).");
         return STATUS_INVALID_PARAMETER;
     }
 
@@ -104,7 +108,7 @@ NTSTATUS CMiniportDMusUARTStream::CopyEvent
         status = m_AllocatorMXF->GetMessage(&newEvent);
         if (!NT_SUCCESS(status) || (newEvent == NULL))
         {
-            //LOG
+            LOG(ERROR, "Invalid captureEvent handle (null value).");
             __leave;
         }
 
@@ -113,7 +117,7 @@ NTSTATUS CMiniportDMusUARTStream::CopyEvent
             status = m_AllocatorMXF->GetBuffer(&newEvent->uData.pbData);
             if (!NT_SUCCESS(status) || (newEvent->uData.pbData == NULL))
             {
-                //LOG
+                LOG(ERROR, "Failed to get message buffer status=0x%x.", status);
                 status = STATUS_INSUFFICIENT_RESOURCES;
                 __leave;
             }
@@ -125,14 +129,15 @@ NTSTATUS CMiniportDMusUARTStream::CopyEvent
             newEvent->uData.pbData = sourceEvent->uData.pbData;
         }
 
-        MLOG("Snap timestamp...");
+        LOG(DEBUG, "Snap timestamp...");
         status = GetMasterTimeStamp(&newEvent->ullPresTime100ns);
         if (!NT_SUCCESS(status))
         {
+            LOG(ERROR, "Failed to get timestamp status=0x%x.", status);
             __leave;
         }
 
-        MLOG("Copying data to kernel event...");
+        LOG(DEBUG, "Copying data to kernel event...");
         newEvent->cbEvent = sourceEvent->cbEvent;
         newEvent->usFlags = sourceEvent->usFlags;
         newEvent->usChannelGroup = 1;
@@ -145,7 +150,7 @@ NTSTATUS CMiniportDMusUARTStream::CopyEvent
             {
                 if (!NT_SUCCESS(m_AllocatorMXF->PutMessage(newEvent)))
                 {
-                    //LOG
+                    LOG(ERROR, "Failed to put message back to allocator status=0x%x.", status);
                 }
             }
 
@@ -162,7 +167,7 @@ NTSTATUS CMiniportDMusUARTStream::CopyEvent
 }
 
 /*****************************************************************************
- * SnapTimeStamp()
+ * CMiniportDMusUARTStream::SnapTimeStamp()
  *****************************************************************************
  *
  * At synchronized execution to ISR, copy miniport's volatile m_InputTimeStamp
@@ -198,7 +203,7 @@ NTSTATUS CMiniportDMusUARTStream::Init
     ASSERT(pMiniport);
     // ASSERT(pPortBase);
 
-    MLOG(DEBUGLVL_BLAB, ("Init"));
+    LOG(DEBUG, ("Init"));
 
     m_pMiniport = pMiniport;
     m_pMiniport->AddRef();
@@ -218,6 +223,7 @@ NTSTATUS CMiniportDMusUARTStream::Init
     }
     else
     {
+        LOG(ERROR, "Failed to init stream.");
         return STATUS_INVALID_PARAMETER;
     }
 
@@ -239,24 +245,24 @@ NTSTATUS CMiniportDMusUARTStream::ConnectOutput
 
     NTSTATUS status = STATUS_UNSUCCESSFUL;
 
-    MLOG("ConnectOutput");
+    LOG(DEBUG, "ConnectOutput");
 
     if (m_fCapture)
     {
         if (sinkMXF != NULL)
         {
-            MLOG("Assigning m_sinKMXF");
+            LOG(DEBUG, "Assigning m_sinKMXF");
             m_sinkMXF = sinkMXF;
             status = STATUS_SUCCESS;
         }
         else
         {
-            MLOG("ConnectOutput Failed");
+            LOG(ERROR, "ConnectOutput Failed");
         }
     }
     else
     {
-        MLOG("ConnectOutput called on renderer; failed");
+        LOG(ERROR, "ConnectOutput called on renderer; failed");
     }
 
     return status;
@@ -277,23 +283,23 @@ NTSTATUS CMiniportDMusUARTStream::DisconnectOutput
 
     NTSTATUS status = STATUS_UNSUCCESSFUL;
 
-    MLOG("DisconnectOutput");
+    LOG(DEBUG, "DisconnectOutput");
     if (m_fCapture)
     {
         if ((m_sinkMXF == sinkMXF) || (!sinkMXF))
         {
-            MLOG("Assigning allocator to sink")
+            LOG(DEBUG, "Assigning allocator to sink")
                 m_sinkMXF = m_AllocatorMXF;
             status = STATUS_SUCCESS;
         }
         else
         {
-            MLOG("DisconnectOutput failed");
+            LOG(ERROR, "DisconnectOutput failed");
         }
     }
     else
     {
-        MLOG("DisconnectOutput called on renderer; failed");
+        LOG(ERROR, "DisconnectOutput called on renderer; failed");
     }
 
     return status;
@@ -312,11 +318,12 @@ NTSTATUS CMiniportDMusUARTStream::HandlePortParams
 {
     PAGED_CODE();
 
-    MLOG("HandlePortParams");
+    LOG(DEBUG, "HandlePortParams");
     NTSTATUS ntStatus;
 
     if (pRequest->Verb & KSPROPERTY_TYPE_SET)
     {
+        LOG(ERROR, "Invalid property!")
         return STATUS_INVALID_DEVICE_REQUEST;
     }
 
@@ -360,22 +367,15 @@ NTSTATUS CMiniportDMusUARTStream::SetState
 {
     PAGED_CODE();
 
-    MLOG("SetState %d", NewState);
+    LOG(DEBUG, "SetState %d", NewState);
 
     if (NewState == KSSTATE_RUN)
     {
-        MLOG("KSSTATE_RUN for stream");
+        LOG(DEBUG, "KSSTATE_RUN for stream");
     }
 
     if (m_fCapture)
     {
-        if ((m_AllocatorMXF != m_sinkMXF) &&
-            (NewState != KSSTATE_RUN) &&
-            (m_pMiniport->GetKsState() == KSSTATE_RUN))
-        {
-            m_sinkMXF = m_AllocatorMXF;
-        }
-
         m_pMiniport->SetKsState(NewState);
     }
 
@@ -397,7 +397,7 @@ NTSTATUS CMiniportDMusUARTStream::NonDelegatingQueryInterface
 {
     PAGED_CODE();
 
-    MLOG("Stream::NonDelegatingQueryInterface");
+    LOG(DEBUG, "Stream::NonDelegatingQueryInterface");
     ASSERT(Object);
 
     if (IsEqualGUIDAligned(Interface, IID_IUnknown))
@@ -415,9 +415,7 @@ NTSTATUS CMiniportDMusUARTStream::NonDelegatingQueryInterface
 
     if (*Object)
     {
-        //
         // We reference the interface for the caller.
-        //
         PUNKNOWN(*Object)->AddRef();
         return STATUS_SUCCESS;
     }
@@ -441,7 +439,7 @@ NTSTATUS CMiniportDMusUARTStream::PutMessage
     PDMUS_KERNEL_EVENT captureEvent = NULL;
     CMiniportDMusUARTStream* captureStream = NULL;
 
-    MLOG("PutMessage with kernel event %p", pDMKEvt);
+    LOG(DEBUG, "PutMessage with kernel event %p", pDMKEvt);
 
     if (pDMKEvt != NULL)
     {
@@ -451,16 +449,17 @@ NTSTATUS CMiniportDMusUARTStream::PutMessage
             status = captureStream->CopyEvent(pDMKEvt, &captureEvent);
             if (!NT_SUCCESS(status))
             {
+                LOG(ERROR, "Failed to copy event status=0x%x.", status);
                 captureEvent = NULL;
-                //LOG
             }
         }
+
     }
 
     status = m_AllocatorMXF->PutMessage(pDMKEvt);
     if (!NT_SUCCESS(status))
     {
-        //LOG
+        LOG(ERROR, "Failed to put message status=0x%x.", status);
     }
 
     if (captureEvent != NULL)
@@ -469,7 +468,7 @@ NTSTATUS CMiniportDMusUARTStream::PutMessage
         status = captureStream->Write(captureEvent);
         if (!NT_SUCCESS(status))
         {
-            //LOG
+            LOG(ERROR, "Failed to write to capture stream status=0x%x.", status);
         }
     }
 

@@ -16,12 +16,12 @@
 #include "miniport.h"
 #include "log.h"
 
-#pragma code_seg("PAGE")
 /*****************************************************************************
  * CMiniportDMusUART::GetDescription()
  *****************************************************************************
  * Gets the topology.
  */
+#pragma code_seg("PAGE")
 NTSTATUS CMiniportDMusUART::GetDescription
 (
     _Out_     PPCFILTER_DESCRIPTOR *  OutFilterDescriptor
@@ -31,13 +31,17 @@ NTSTATUS CMiniportDMusUART::GetDescription
 
     ASSERT(OutFilterDescriptor);
 
-    MLOG("GetDescription");
+    LOG(DEBUG, "GetDescription");
 
     *OutFilterDescriptor = &MiniportFilterDescriptor;
 
     return STATUS_SUCCESS;
 }
 
+/*****************************************************************************
+* CMiniportDMusUART::StreamDestroying()
+*****************************************************************************
+*/
 #pragma code_seg("PAGE")
 VOID CMiniportDMusUART::StreamDestroying
 (
@@ -46,21 +50,25 @@ VOID CMiniportDMusUART::StreamDestroying
 {
     PAGED_CODE();
 
-    MLOG("Destroying stream...");
+    LOG(DEBUG, "Destroying stream...");
     if (capture)
     {
-        MLOG("Destroying input stream...");
+        LOG(INFO, "Destroying input stream...");
         m_inputStream = NULL;
         InterlockedDecrement16(&m_NumCaptureStreams);
     }
     else
     {
-        MLOG("Destroying output stream...");
+        LOG(INFO, "Destroying output stream...");
         m_outputStream = NULL;
         InterlockedDecrement16(&m_NumRenderStreams);
     }
 }
 
+/*****************************************************************************
+* CMiniportDMusUART::GetCaptureStream()
+*****************************************************************************
+*/
 #pragma code_seg()
 NTSTATUS CMiniportDMusUART::GetCaptureStream
 (
@@ -72,7 +80,7 @@ NTSTATUS CMiniportDMusUART::GetCaptureStream
 
     if (targetStream == NULL)
     {
-        //LOG
+        LOG(ERROR, "Invalid stream handle (null value).");
         return STATUS_INVALID_PARAMETER;
     }
 
@@ -80,13 +88,13 @@ NTSTATUS CMiniportDMusUART::GetCaptureStream
 
     if (sourceStream != m_outputStream)
     {
-        MLOG("Source is correct: output stream");
+        LOG(ERROR, "Source is correct: output stream");
         return STATUS_INVALID_PARAMETER;
     }
 
     if (m_inputStream != NULL)
     {
-        MLOG("Input stream is not null, forwarding event...");
+        LOG(DEBUG, "Input stream is not null, forwarding event...");
         *targetStream = reinterpret_cast<CMiniportDMusUARTStream*>(m_inputStream);
         status = STATUS_SUCCESS;
     }
@@ -94,12 +102,12 @@ NTSTATUS CMiniportDMusUART::GetCaptureStream
     return status;
 }
 
-#pragma code_seg("PAGE")
 /*****************************************************************************
  * CMiniportDMusUART::ProcessResources()
  *****************************************************************************
  * Processes the resource list, setting up helper objects accordingly.
  */
+#pragma code_seg("PAGE")
 NTSTATUS CMiniportDMusUART::ProcessResources
 (
     _In_      PRESOURCELIST   ResourceList
@@ -107,12 +115,16 @@ NTSTATUS CMiniportDMusUART::ProcessResources
 {
     PAGED_CODE();
     UNREFERENCED_PARAMETER(ResourceList);
-    MLOG("ProcessResources");
+    LOG(DEBUG, "ProcessResources");
     //Here we are supposed to call: initmpu, resethardware
     //We do not use any physical resouces
     return STATUS_SUCCESS;
 }
 
+/*****************************************************************************
+* CMiniportDMusUART::PowerChangeNotify()
+*****************************************************************************
+*/
 #pragma code_seg("PAGE")
 void CMiniportDMusUART::PowerChangeNotify
 (
@@ -123,9 +135,13 @@ void CMiniportDMusUART::PowerChangeNotify
 
     UNREFERENCED_PARAMETER(PowerState);
 
-    MLOG("CMiniportDMusUART::PoweChangeNotify D%d", PowerState.DeviceState);
+    LOG(DEBUG, "CMiniportDMusUART::PoweChangeNotify D%d", PowerState.DeviceState);
 } 
 
+/*****************************************************************************
+* CMiniportDMusUART::NonDelegatingQueryInterface()
+*****************************************************************************
+*/
 #pragma code_seg("PAGE")
 NTSTATUS CMiniportDMusUART::NonDelegatingQueryInterface
 (
@@ -135,53 +151,51 @@ NTSTATUS CMiniportDMusUART::NonDelegatingQueryInterface
 {
     PAGED_CODE();
 
-    MLOG("Miniport::NonDelegatingQueryInterface");
+    LOG(DEBUG, "Miniport::NonDelegatingQueryInterface");
     ASSERT(Object);
 
     /*GUID input = (GUID)Interface;
-    MLOG("Requested GUI: %x-%x-%x", input.Data1, input.Data2, input.Data3);*/
+    LOG(DEBUG, "Requested GUI: %x-%x-%x", input.Data1, input.Data2, input.Data3);*/
 
     if (IsEqualGUIDAligned(Interface,IID_IUnknown))
     {
-        MLOG("Requested IID_IUnknown interface...");
+        LOG(INFO, "Requested IID_IUnknown interface...");
         *Object = PVOID(PUNKNOWN(PMINIPORTDMUS(this)));
     }
     else if (IsEqualGUIDAligned(Interface,IID_IMiniport))
     {
-        MLOG("Requested IID_IMiniport interface...");
+        LOG(INFO, "Requested IID_IMiniport interface...");
         *Object = PVOID(PMINIPORT(this));
     }
     else if (IsEqualGUIDAligned(Interface,IID_IMiniportDMus))
     {
-        MLOG("Requested IID_IMiniportDMus interface...");
+        LOG(INFO, "Requested IID_IMiniportDMus interface...");
 
         *Object = PVOID(PMINIPORTDMUS(this));
     }
     else if (IsEqualGUIDAligned(Interface,IID_IMusicTechnology))
     {
-        MLOG("Requested IID_IMusicTechnology interface...");
+        LOG(INFO, "Requested IID_IMusicTechnology interface...");
 
         *Object = PVOID(PMUSICTECHNOLOGY(this));
     }
     else if (IsEqualGUIDAligned(Interface, IID_IPowerNotify))
     {
-        MLOG("Requested IID_IPowerNotify interface...");
+        LOG(INFO, "Requested IID_IPowerNotify interface...");
 
         *Object = PVOID(PPOWERNOTIFY(this));
     }
     else
     {
-        MLOG("Unknown interface, null...");
+        LOG(INFO, "Unknown interface, null...");
 
         *Object = NULL;
     }
 
     if (*Object)
     {
-        //
         // We reference the interface for the caller.
-        //
-        MLOG("Success in nondelegatingqueryinterface")
+        LOG(DEBUG, "Success in nondelegatingqueryinterface")
         PUNKNOWN(*Object)->AddRef();
         return STATUS_SUCCESS;
     }
@@ -234,12 +248,12 @@ NTSTATUS CMiniportDMusUART::Init
 
     UNREFERENCED_PARAMETER(UnknownInterruptSync);
 
-    MLOG("Initializing the miniport...");
+    LOG(DEBUG, "Initializing the miniport...");
     ASSERT(ResourceList);
     
     if (!ResourceList)
     {
-        MLOG("ResourceList is null, configuration error...");
+        LOG(ERROR, "ResourceList is null, configuration error...");
         return STATUS_DEVICE_CONFIGURATION_ERROR;
     }
 
@@ -255,17 +269,14 @@ NTSTATUS CMiniportDMusUART::Init
     //Possible problem here.
     m_PowerState.DeviceState = PowerDeviceUnspecified;
 
-    //
     // AddRef() is required because we are keeping this pointer.
-    //
     m_pPort = Port_;
     m_pPort->AddRef();
 
     // Set dataformat.
-    //
     if (IsEqualGUIDAligned(m_MusicFormatTechnology, GUID_NULL))
     {
-        MLOG("MusicFormatTechnology is null, using technology_port");
+        LOG(DEBUG, "MusicFormatTechnology is null, using technology_port");
         RtlCopyMemory(  &m_MusicFormatTechnology,
                         &KSMUSIC_TECHNOLOGY_PORT,
                         sizeof(GUID));
@@ -284,11 +295,11 @@ NTSTATUS CMiniportDMusUART::Init
     m_NumRenderStreams = 0;
     m_NumCaptureStreams = 0;
 
-    MLOG("New service group...");
+    LOG(DEBUG, "New service group...");
     ntStatus = PcNewServiceGroup(&m_pServiceGroup,NULL);
     if (NT_SUCCESS(ntStatus) && !m_pServiceGroup)   //  keep any error
     {
-        MLOG("Could not allocate service group...");
+        LOG(ERROR, "Could not allocate service group...");
         ntStatus = STATUS_INSUFFICIENT_RESOURCES;
     }
 
@@ -301,22 +312,22 @@ NTSTATUS CMiniportDMusUART::Init
         // Register the service group with the port early so the port is
         // prepared to handle interrupts.
         //
-        MLOG("Registering service group (necessary)?");
+        LOG(DEBUG, "Registering service group (necessary)?");
         m_pPort->RegisterServiceGroup(m_pServiceGroup);
     }
 
     if (NT_SUCCESS(ntStatus))
     {
-        MLOG("Process resources");
+        LOG(DEBUG, "Process resources");
         ntStatus = ProcessResources(ResourceList);
     }
-    MLOG("Ending init function...");
+
+    LOG(DEBUG, "Ending init function...");
     if (!NT_SUCCESS(ntStatus))
     {
-        MLOG("Ending init function with error.");
-        //
+        LOG(DEBUG, "Ending init function with error.");
+
         // clean up our mess
-        //
 
         // clean up the service group
         if( m_pServiceGroup )
@@ -373,16 +384,16 @@ NTSTATUS CMiniportDMusUART::NewStream
         || ((m_NumRenderStreams < kMaxNumLegacyRenderStreams + kMaxNumDMusicRenderStreams)
         && (StreamType == DMUS_STREAM_MIDI_RENDER)))
     {
-        MLOG("Creating new stream...");
+        LOG(DEBUG, "Creating new stream...");
         CMiniportDMusUARTStream *pStream =
             new(PoolType)CMiniportDMusUARTStream(OuterUnknown);
         if (pStream == NULL)
         {
-            MLOG("Insufficient resources...");
+            LOG(DEBUG, "Insufficient resources...");
             return STATUS_INSUFFICIENT_RESOURCES;
         }
 
-        MLOG("Stream allocated., initializing");
+        LOG(DEBUG, "Stream allocated., initializing");
         pStream->AddRef();
 
         ntStatus = pStream->Init(this, m_pPortBase, (StreamType == DMUS_STREAM_MIDI_CAPTURE), AllocatorMXF, MasterClock);
@@ -391,11 +402,11 @@ NTSTATUS CMiniportDMusUART::NewStream
             *MXF = PMXF(pStream);
             (*MXF)->AddRef();
 
-            MLOG("Stream correctly initialized.");
+            LOG(DEBUG, "Stream correctly initialized.");
             if (StreamType == DMUS_STREAM_MIDI_CAPTURE)
             {
                 m_inputStream = pStream;
-                MLOG("Stream type is DMUS capture, adding service group.");
+                LOG(DEBUG, "Stream type is DMUS capture, adding service group.");
                 m_NumCaptureStreams++;
                 *ServiceGroup = m_pServiceGroup;
                 (*ServiceGroup)->AddRef();
@@ -415,15 +426,15 @@ NTSTATUS CMiniportDMusUART::NewStream
         ntStatus = STATUS_INVALID_DEVICE_REQUEST;
         if (StreamType == DMUS_STREAM_MIDI_CAPTURE)
         {
-           MLOG("NewStream failed, too many capture streams");
+           LOG(ERROR, "NewStream failed, too many capture streams");
         }
         else if (StreamType == DMUS_STREAM_MIDI_RENDER)
         {
-            MLOG("NewStream failed, too many render streams");
+            LOG(ERROR, "NewStream failed, too many render streams");
         }
         else
         {
-            MLOG("NewStream invalid stream type");
+            LOG(ERROR, "NewStream invalid stream type");
         }
     }
 
@@ -443,7 +454,7 @@ NTSTATUS CMiniportDMusUART::SetTechnology
 {
     PAGED_CODE();
 
-    MLOG("SetTechnology");
+    LOG(DEBUG, "SetTechnology");
     NTSTATUS ntStatus = STATUS_UNSUCCESSFUL;
 
     // Fail if miniport has already been initialized.
@@ -465,13 +476,12 @@ NTSTATUS CMiniportDMusUART::SetTechnology
 #pragma code_seg()
 void CMiniportDMusUART::Service()
 {
-    MLOG("Service");
+    LOG(DEBUG, "Service");
 }
 
 /*****************************************************************************
-* CMiniportDMusUART::Service()
+* CMiniportDMusUART::DataRangeIntersection()
 *****************************************************************************
-* DPC-mode service call from the port.
 */
 #pragma code_seg("PAGE_CODE")
 NTSTATUS CMiniportDMusUART::DataRangeIntersection

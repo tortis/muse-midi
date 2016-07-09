@@ -4,7 +4,6 @@
 *
 ****************************************************************************/
 
-
 #include "miniport.h"
 #include "sbvmidi.h"
 #include "log.h"
@@ -38,7 +37,7 @@ extern "C" NTSTATUS DriverEntry
 {
     PAGED_CODE();
 
-    MLOG("DriverEntry");
+    LOG(DEBUG, "DriverEntry");
 
     // Tell the class driver to initialize the driver.
     return PcInitializeAdapterDriver((PDRIVER_OBJECT)Context1,
@@ -69,7 +68,7 @@ NTSTATUS InstallSubdevice
 
     UNREFERENCED_PARAMETER(UnknownAdapter);
 
-    MLOG("InstallSubdevice");
+    LOG(DEBUG, "InstallSubdevice");
     ASSERT(Context1);
     ASSERT(Context2);
     ASSERT(Name);
@@ -110,12 +109,12 @@ NTSTATUS InstallSubdevice
                     port);
                 if (!(NT_SUCCESS(ntStatus)))
                 {
-                    MLOG("StartDevice: PcRegisterSubdevice failed");
+                    LOG(ERROR, "StartDevice: PcRegisterSubdevice failed");
                 }
             }
             else
             {
-                MLOG("InstallSubdevice: port->Init failed");
+                LOG(ERROR, "InstallSubdevice: port->Init failed");
             }
 
             // We don't need the miniport any more.  Either the port has it,
@@ -124,7 +123,7 @@ NTSTATUS InstallSubdevice
         }
         else
         {
-            MLOG("InstallSubdevice: PcNewMiniport failed");
+            LOG(ERROR, "InstallSubdevice: PcNewMiniport failed");
         }
 
         if (NT_SUCCESS(ntStatus))
@@ -161,7 +160,7 @@ NTSTATUS InstallSubdevice
     }
     else
     {
-        MLOG("InstallSubdevice: PcNewPort failed");
+        LOG(ERROR, "InstallSubdevice: PcNewPort failed");
     }
 
     return ntStatus;
@@ -184,7 +183,7 @@ NTSTATUS CreateMiniportDMusUART
 {
     PAGED_CODE();
 
-    MLOG("CreateMiniportDMusUART");
+    LOG(DEBUG, "CreateMiniportDMusUART");
     ASSERT(Unknown);
 
     STD_CREATE_BODY_(CMiniportDMusUART,
@@ -214,12 +213,12 @@ NTSTATUS InstallSubdeviceVirtual
     PPORT port = NULL;
     NTSTATUS status = STATUS_SUCCESS;
 
-    MLOG("InstallSubdevice");
-    MLOG("Creating port driver...");
+    LOG(DEBUG, "InstallSubdevice");
+    LOG(DEBUG, "Creating port driver...");
 
     if (Name == NULL)
     {
-        //LOG
+        LOG(ERROR, "Invalid name handle (null value).");
         return STATUS_INVALID_PARAMETER;
     }
 
@@ -228,7 +227,7 @@ NTSTATUS InstallSubdeviceVirtual
     {
         //Manually create minport driver
         PMINIPORT miniport = NULL;
-        MLOG("Creating miniport driver...");
+        LOG(DEBUG, "Creating miniport driver...");
         status = CreateMiniportDMusUART((PUNKNOWN*)&miniport, MiniportClassId, NULL, NonPagedPool); //Temporal fix, we need a new one!
         if (NT_SUCCESS(status))
         {
@@ -240,27 +239,27 @@ NTSTATUS InstallSubdeviceVirtual
                 ResourceList);
             if (NT_SUCCESS(status))
             {
-                MLOG("Miniport-init: success. Registering sub device...")
+                LOG(DEBUG, "Miniport-init: success. Registering sub device...")
 
                     // Register the subdevice (port/miniport combination).
                     status = PcRegisterSubdevice((PDEVICE_OBJECT)Context1, Name, port);
                 if (!(NT_SUCCESS(status)))
                 {
-                    MLOG("StartDevice: PcRegisterSubdevice failed");
+                    LOG(ERROR, "StartDevice: PcRegisterSubdevice failed");
                 }
 
-                MLOG("PcRegisterSubdevice: success.");
+                LOG(DEBUG, "PcRegisterSubdevice: success.");
             }
             else
             {
-                MLOG("InstallSubdevice: port->Init failed");
+                LOG(ERROR, "InstallSubdevice: port->Init failed");
             }
 
             //
             // We don't need the miniport any more.  Either the port has it,
             // or we've failed, and it should be deleted.
             //
-            MLOG("Miniport successfully created!");
+            LOG(DEBUG, "Miniport successfully created!");
             miniport->Release();
         }
 
@@ -269,7 +268,7 @@ NTSTATUS InstallSubdeviceVirtual
     }
     else
     {
-        MLOG("Port driver creation failed!");
+        LOG(ERROR, "Port driver creation failed!");
     }
 
     return status;
@@ -290,11 +289,11 @@ NTSTATUS StartDevice
 {
     PAGED_CODE();
 
-    MLOG("StartDevice");
+    LOG(DEBUG, "StartDevice");
 
     if (!ResourceList)
     {
-        MLOG("StartDevice: NULL resource list");
+        LOG(ERROR, "StartDevice: NULL resource list");
         return STATUS_INVALID_PARAMETER;
     }
 
@@ -337,7 +336,7 @@ NTSTATUS AddDevice
 {
     PAGED_CODE();
     
-    MLOG("AddDevice");
+    LOG(DEBUG, "AddDevice");
 
     // Tell the class driver to add the device.
     //http://msdn.microsoft.com/en-us/library/windows/hardware/ff537683(v=vs.85).aspx
