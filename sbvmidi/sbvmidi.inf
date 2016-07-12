@@ -1,3 +1,7 @@
+;
+; Copyright (C) 2016 Autotheory
+; All rights reserved
+;
 
 [Version]
 CatalogFile=sbvmidi.cat
@@ -23,57 +27,57 @@ sbvmidi.sys=222
 %MfgName%=DeviceList,NTAMD64
 
 [DeviceList]
-%teVirtualMIDI.DeviceDesc32%=teVMIDI,sbVirtualMIDIDevice
+%sbVirtualMIDI.DeviceDesc32%=sbVMIDI,sbVirtualMIDIDevice
 
 [DeviceList.NTAMD64]
-%teVirtualMIDI.DeviceDesc64%=teVMIDI,sbVirtualMIDIDevice
+%sbVirtualMIDI.DeviceDesc64%=sbVMIDI,sbVirtualMIDIDevice
 
 [DestinationDirs]
-teVMIDIDrv32=12,
-teVMIDIDrv64=12,
-teVMIDIInt32=11,
-teVMIDIInt64=11,
-teVMIDIIntWOW=10,SysWOW64
+sbVMIDIDrv32=12,
+sbVMIDIDrv64=12,
+sbVMIDIInt32=11,
+sbVMIDIInt64=11,
+sbVMIDIIntWOW=10,SysWOW64
 
 ;======================================================
-; teVMIDI
+; sbVMIDI
 ;======================================================
-[teVMIDIDrv32]
+[sbVMIDIDrv32]
 sbvmidi.sys
 
-[teVMIDIDrv64]
+[sbVMIDIDrv64]
 sbvmidi64.sys
 
-[teVMIDI.AddReg]
+[sbVMIDI.AddReg]
 HKR,,AssociatedFilters,,"wdmaud,swmidi"
 HKR,,Driver,,sbvmidi.sys
 HKR,Drivers,SubClasses,,"midi"
 HKR,Drivers\midi\wdmaud.drv,Driver,,wdmaud.drv
-HKR,Drivers\midi\wdmaud.drv,Description,,%teVirtualMIDI.DeviceDesc32%
+HKR,Drivers\midi\wdmaud.drv,Description,,%sbVirtualMIDI.DeviceDesc32%
 
-[teVMIDI.AddReg64]
+[sbVMIDI.AddReg64]
 HKR,,AssociatedFilters,,"wdmaud,swmidi"
 HKR,,Driver,,sbvmidi64.sys
 HKR,Drivers,SubClasses,,"midi"
 HKR,Drivers\midi\wdmaud.drv,Driver,,wdmaud.drv
-HKR,Drivers\midi\wdmaud.drv,Description,,%teVirtualMIDI.DeviceDesc64%
+HKR,Drivers\midi\wdmaud.drv,Description,,%sbVirtualMIDI.DeviceDesc64%
 
 ;======================================================
-; teVMIDI.NT
+; sbVMIDI.NT
 ;======================================================
-[teVMIDI.NTx86]
+[sbVMIDI.NTx86]
 Include=ks.inf,wdmaudio.inf
 Needs=KS.Registration, WDMAUDIO.Registration
-CopyFiles=teVMIDIDrv32
-AddReg=teVMIDI.AddReg
+CopyFiles=sbVMIDIDrv32
+AddReg=sbVMIDI.AddReg
 
-[teVMIDI.NTamd64]
+[sbVMIDI.NTamd64]
 Include=ks.inf,wdmaudio.inf
 Needs=KS.Registration, WDMAUDIO.Registration
-CopyFiles= teVMIDIDrv64
-AddReg=teVMIDI.AddReg64
+CopyFiles= sbVMIDIDrv64
+AddReg=sbVMIDI.AddReg64
 
-[teVMIDI.NTx86.Interfaces]
+[sbVMIDI.NTx86.Interfaces]
 AddInterface=%KSCATEGORY_AUDIO%,%KSNAME_Midi1%,SBVMIDI.I.MIDI
 AddInterface=%KSCATEGORY_RENDER%,%KSNAME_Midi1%,SBVMIDI.I.MIDI
 AddInterface=%KSCATEGORY_CAPTURE%,%KSNAME_Midi1%,SBVMIDI.I.MIDI
@@ -106,7 +110,7 @@ AddInterface=%KSCATEGORY_AUDIO%,%KSNAME_Midi8%,SBVMIDI.VIII.MIDI
 AddInterface=%KSCATEGORY_RENDER%,%KSNAME_Midi8%,SBVMIDI.VIII.MIDI
 AddInterface=%KSCATEGORY_CAPTURE%,%KSNAME_Midi8%,SBVMIDI.VIII.MIDI
 
-[teVMIDI.NTamd64.Interfaces]
+[sbVMIDI.NTamd64.Interfaces]
 AddInterface=%KSCATEGORY_AUDIO%,%KSNAME_Midi1%,SBVMIDI.I.MIDI
 AddInterface=%KSCATEGORY_RENDER%,%KSNAME_Midi1%,SBVMIDI.I.MIDI
 AddInterface=%KSCATEGORY_CAPTURE%,%KSNAME_Midi1%,SBVMIDI.I.MIDI
@@ -140,25 +144,25 @@ AddInterface=%KSCATEGORY_RENDER%,%KSNAME_Midi8%,SBVMIDI.VIII.MIDI
 AddInterface=%KSCATEGORY_CAPTURE%,%KSNAME_Midi8%,SBVMIDI.VIII.MIDI
 
 
-[teVMIDI.NTx86.Services]
+[sbVMIDI.NTx86.Services]
 include=wdmaudio.inf
 needs=wdmaudio.registration.services
-AddService=sbvMIDI,2,teVMIDI_Service_Inst
+AddService=sbvMIDI,2,sbVMIDI_Service_Inst
 
-[teVMIDI.NTamd64.Services]
+[sbVMIDI.NTamd64.Services]
 include=wdmaudio.inf
 needs=wdmaudio.registration.services
-AddService=sbvMIDI,2,teVMIDI_Service_Inst64
+AddService=sbvMIDI,2,sbVMIDI_Service_Inst64
 
-[teVMIDI_Service_Inst]
-DisplayName=%teVirtualMIDI.SvcDesc32%
+[sbVMIDI_Service_Inst]
+DisplayName=%sbVirtualMIDI.SvcDesc32%
 ServiceType=1
 StartType=3
 ErrorControl=1
 ServiceBinary=%12%\sbvmidi.sys
 
-[teVMIDI_Service_Inst64]
-DisplayName=%teVirtualMIDI.SvcDesc64%
+[sbVMIDI_Service_Inst64]
+DisplayName=%sbVirtualMIDI.SvcDesc64%
 ServiceType=1
 StartType=3
 ErrorControl=1
@@ -241,11 +245,11 @@ SBVMIDI.VIII.MIDI.szPname="AutoTheory8"
 KSCATEGORY_AUDIO="{6994AD04-93EF-11D0-A3CC-00A0C9223196}"
 KSCATEGORY_RENDER="{65E8773E-8F56-11D0-A3B9-00A0C9223196}"
 KSCATEGORY_CAPTURE="{65E8773D-8F56-11D0-A3B9-00A0C9223196}"
-teVirtualMIDI.DeviceDesc32="SBVIMIDI - Virtual MIDI Driver x86"
-teVirtualMIDI.Midi.szPname32="SBVIMIDI - Virtual MIDI Driver x86"
-teVirtualMIDI.DeviceDesc64="SBVIMIDI - Virtual MIDI Driver x64"
-teVirtualMIDI.Midi.szPname64="SBVIMIDI - Virtual MIDI Driver x64"
-teVirtualMIDI.SvcDesc32="SBVIMIDI - Virtual MIDI Driver x86"
-teVirtualMIDI.SvcDesc64="SBVIMIDI - Virtual MIDI Driver x64"
+sbVirtualMIDI.DeviceDesc32="SBVIMIDI - Virtual MIDI Driver x86"
+sbVirtualMIDI.Midi.szPname32="SBVIMIDI - Virtual MIDI Driver x86"
+sbVirtualMIDI.DeviceDesc64="SBVIMIDI - Virtual MIDI Driver x64"
+sbVirtualMIDI.Midi.szPname64="SBVIMIDI - Virtual MIDI Driver x64"
+sbVirtualMIDI.SvcDesc32="SBVIMIDI - Virtual MIDI Driver x86"
+sbVirtualMIDI.SvcDesc64="SBVIMIDI - Virtual MIDI Driver x64"
 DiskInfo="SBVIMIDI Driver Disk"
 
