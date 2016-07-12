@@ -1,1 +1,0 @@
-"C:\Program Files (x86)\Windows Kits\8.1\bin\x86\Inf2Cat.exe" /driver:. /os:8_X64,8_X86,Server8_x64,Server2008R2_x64,7_x64,7_x86,server2008_x64,server2008_x86,vista_x64,vista_x86,server2003_x64,server2003_x86,xp_x64,xp_x86

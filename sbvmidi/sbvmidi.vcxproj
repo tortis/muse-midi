@@ -76,6 +76,9 @@
   <PropertyGroup>
     <TimeStampServer>http://timestamp.verisign.com/scripts/timstamp.dll</TimeStampServer>
   </PropertyGroup>
+  <PropertyGroup>
+    <OutDir>..\Output\$(Platform)\$(ConfigurationName)\</OutDir>
+  </PropertyGroup>
   <ItemGroup>
     <ClCompile Include="property.cpp" />
     <ClCompile Include="sbvmidi.cpp" />

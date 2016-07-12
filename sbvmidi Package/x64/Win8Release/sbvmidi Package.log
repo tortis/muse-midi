@@ -1,8 +1,0 @@
-﻿Compilación iniciada a las 11/02/2014 14:56:19.
-     1>Proyecto "C:\Users\Alberto\Documents\GitHub\sbvmidi\sbvmidi Package\sbvmidi Package.vcxproj" en el nodo 2 (Build destinos).
-     1>C:\Program Files (x86)\Windows Kits\8.1\build\WindowsDriver.common.targets(1366,5): error MSB3030: No se pudo copiar el archivo "C:\Users\Alberto\Documents\GitHub\sbvmidi\x64\Win8Release\sbvmidi.sys" porque no se encontró.
-     1>Compilación del proyecto terminada "C:\Users\Alberto\Documents\GitHub\sbvmidi\sbvmidi Package\sbvmidi Package.vcxproj" (Build destinos) -- ERROR.
-
-ERROR al compilar.
-
-Tiempo transcurrido 00:00:00.09
