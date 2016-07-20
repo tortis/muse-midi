@@ -1,9 +1,19 @@
-/****************************************************************************
-* Copyright (C) 2016 Autotheory
-* All rights reserved
-*
-****************************************************************************/
-
+/*
+  ==============================================================================
+   This file is part of the Springbeats Virtual MIDI Driver (sbvmidi).
+   Copyright (c) 2016 - Springbeats SARL.
+   Permission is granted to use this software under the terms of either:
+   a) the GPL v2 (or any later version)
+   b) the Affero GPL v3
+   Details of these licenses can be found at: www.gnu.org/licenses
+   Sbvmidi is distributed in the hope that it will be useful, but WITHOUT ANY
+   WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+   A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+   ------------------------------------------------------------------------------
+   To release a closed-source product which uses sbvmidi, commercial licenses are
+   available: visit www.springbeats.com for more information.
+  ==============================================================================
+*/
 #include "miniport.h"
 #include "sbvmidi.h"
 #include "log.h"
@@ -14,14 +24,14 @@
 
 static PWSTR PortReferenceNames[NUM_CHANNEL_REFERENCE_NAMES] =
 {
-    L"AutoTheory1",
-    L"AutoTheory2",
-    L"AutoTheory3",
-    L"AutoTheory4",
-    L"AutoTheory5",
-    L"AutoTheory6",
-    L"AutoTheory7",
-    L"AutoTheory8" 
+    L"Springbeats vMIDI1",
+    L"Springbeats vMIDI2",
+    L"Springbeats vMIDI3",
+    L"Springbeats vMIDI4",
+    L"Springbeats vMIDI5",
+    L"Springbeats vMIDI6",
+    L"Springbeats vMIDI7",
+    L"Springbeats vMIDI8" 
 };
 
 /*****************************************************************************
