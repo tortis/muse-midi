@@ -1,0 +1,56 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>MIDI Test</title>
+</head>
+
+<body>
+  <h1>MIDI Devices Found Using the <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_MIDI_API">Web MIDI API</a></h1>
+  <section>
+    <h3>Input Ports</h3>
+    <ul id="midi-input-list"></ul>
+  </section>
+
+  <section>
+    <h3>Output Ports</h3>
+    <ul id="midi-output-list"></ul>
+  </section>
+  <script>
+    navigator.requestMIDIAccess().then( onMIDISuccess, onMIDIFailure );
+
+    function onMIDISuccess( midiAccess ) {
+      console.log( "MIDI ready!" );
+      listInputsAndOutputs(midiAccess);
+    }
+
+    function onMIDIFailure(msg) {
+      console.log( "Failed to get MIDI access - " + msg );
+    }
+
+    function listInputsAndOutputs( midiAccess ) {
+      let inputItems = [];
+      for (var entry of midiAccess.inputs) {
+        var input = entry[1];
+        inputItems.push(`<li>${input.name} (${input.manufacture}) version ${input.version}</li>`);
+        console.log( "Input port [type:'" + input.type + "'] id:'" + input.id +
+          "' manufacturer:'" + input.manufacturer + "' name:'" + input.name +
+          "' version:'" + input.version + "'" );
+      }
+
+      let outputItems = [];
+      for (var entry of midiAccess.outputs) {
+        var output = entry[1];
+        outputItems.push(`<li>${output.name} (${output.manufacture}) version ${output.version}</li>`);
+        console.log( "Output port [type:'" + output.type + "'] id:'" + output.id +
+          "' manufacturer:'" + output.manufacturer + "' name:'" + output.name +
+          "' version:'" + output.version + "'" );
+      }
+
+      document.getElementById('midi-input-list').innerHTML = inputItems.join("\n");
+      document.getElementById('midi-output-list').innerHTML = outputItems.join("\n");
+    }
+  </script>
+</body>
+</html>
