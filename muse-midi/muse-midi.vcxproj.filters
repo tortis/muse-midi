@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Inf Include="sbvmidi.inf">
+    <Inf Include="musemidi.inf">
       <Filter>Driver Files</Filter>
     </Inf>
   </ItemGroup>
@@ -29,7 +29,7 @@
     <ClCompile Include="stdunk.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="sbvmidi.cpp">
+    <ClCompile Include="musemidi.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="property.cpp">
@@ -55,11 +55,11 @@
     <ClInclude Include="property.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="sbvmidi.h">
+    <ClInclude Include="musemidi.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="sbvmidi.rc" />
+    <ResourceCompile Include="musemidi.rc" />
   </ItemGroup>
 </Project>

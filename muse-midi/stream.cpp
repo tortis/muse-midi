@@ -17,7 +17,7 @@
 #include "stream.h"
 #include "miniport.h"
 #include "Log.h"
-#include "sbvmidi.h"
+#include "musemidi.h"
 
 /*****************************************************************************
 * CMiniportDMusUARTStream::~CMiniportDMusUARTStream()

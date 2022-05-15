@@ -26,8 +26,9 @@
     <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
     <Configuration>Debug</Configuration>
     <Platform Condition="'$(Platform)' == ''">Win32</Platform>
-    <RootNamespace>sbvmidi</RootNamespace>
+    <RootNamespace>muse-midi</RootNamespace>
     <WindowsTargetPlatformVersion>$(LatestTargetPlatformVersion)</WindowsTargetPlatformVersion>
+    <ProjectName>muse-midi</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
@@ -73,17 +74,17 @@
     </DriverSign>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Inf Include="sbvmidi.inf" />
+    <Inf Include="musemidi.inf" />
   </ItemGroup>
   <ItemGroup>
     <FilesToPackage Include="$(TargetPath)" />
     <FilesToPackage Include="@(Inf->'%(CopyOutput)')" Condition="'@(Inf)'!=''" />
   </ItemGroup>
   <PropertyGroup Condition="'$(Platform)'=='x64'">
-    <TargetName>sbvmidi64</TargetName>
+    <TargetName>musemidi64</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Platform)'=='Win32'">
-    <TargetName>sbvmidi</TargetName>
+    <TargetName>musemidi</TargetName>
   </PropertyGroup>
   <PropertyGroup>
     <TimeStampServer>http://timestamp.verisign.com/scripts/timstamp.dll</TimeStampServer>
@@ -96,7 +97,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ClCompile Include="property.cpp" />
-    <ClCompile Include="sbvmidi.cpp" />
+    <ClCompile Include="musemidi.cpp" />
     <ClCompile Include="miniport.cpp" />
     <ClCompile Include="stdunk.cpp" />
     <ClCompile Include="stream.cpp" />
@@ -105,13 +106,13 @@
     <ClInclude Include="log.h" />
     <ClInclude Include="miniport.h" />
     <ClInclude Include="property.h" />
-    <ClInclude Include="sbvmidi.h" />
+    <ClInclude Include="musemidi.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="resource1.h" />
     <ClInclude Include="stream.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="sbvmidi.rc" />
+    <ResourceCompile Include="musemidi.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -22,7 +22,7 @@
 #include <ntstrsafe.h>
 #include "stdunk.h"
 #include "dmusicks.h"
-#include "sbvmidi.h"
+#include "musemidi.h"
 
 /*****************************************************************************
 * PinDataRangesStreamLegacy

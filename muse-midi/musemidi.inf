@@ -1,0 +1,90 @@
+[Version]
+Signature="$WINDOWS NT$"
+Class = Media
+ClassGuid = {4d36e96c-e325-11ce-bfc1-08002be10318}
+Provider=%OrganizationName% ; defined later in Strings section
+CatalogFile=musemidi.cat
+DriverVer= ; set DriverVer in stampinf property pages
+DriverPackageDisplayName=%DriverDisplayName%
+PnpLockdown = 1
+
+[DestinationDirs]
+DefaultDestDir = 12 ; DIRID_DRIVERS
+MuseMidi_Device_CoInstaller_CopyFiles = 11
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+musemidi64.sys  = 1,,
+
+[Manufacturer]
+%OrganizationName%=Standard,NT$ARCH$
+
+[Standard.NT$ARCH$]
+%MuseAudio.DeviceDesc%=musemidi, Root\MuseMidi
+
+[musemidi.NT]
+Include=ks.inf,wdmaudio.inf
+Needs=KS.Registration, WDMAUDIO.Registration
+CopyFiles=Drivers_Dir
+AddReg=musemidi.AddReg
+
+[Drivers_Dir]
+musemidi64.sys
+
+[DeviceInstall32]
+AddDevice = Root\MuseMidi,,musemidi.Root
+
+[musemidi.Root]
+HardwareIds = Root\MuseMidi
+
+[musemidi.AddReg]
+HKR,,AssociatedFilters,,"wdmaud,swmidi"
+HKR,,Driver,,musemidi64.sys
+HKR,Drivers,SubClasses,,"midi"
+HKR,Drivers\midi\wdmaud.drv,Driver,,wdmaud.drv
+HKR,Drivers\midi\wdmaud.drv,Description,,%MuseAudio.DeviceDesc%
+
+[musemidi.NT.Services]
+include=wdmaudio.inf
+needs=wdmaudio.registration.services
+AddService=musemidi,2,musemidi_Service_Inst
+
+[musemidi_Service_Inst]
+DisplayName = %MuseAudio.SVCDESC%
+ServiceType = 1
+StartType = 3
+ErrorControl = 1
+ServiceBinary = %12%\musemidi64.sys
+
+[musemidi.NT.Interfaces]
+AddInterface=%KSCATEGORY_AUDIO%,%KSNAME_Midi%,MUSEMIDI.MIDI
+AddInterface=%KSCATEGORY_RENDER%,%KSNAME_Midi%,MUSEMIDI.MIDI
+AddInterface=%KSCATEGORY_CAPTURE%,%KSNAME_Midi%,MUSEMIDI.MIDI
+
+;======================================================
+; COMMON
+;======================================================
+
+[MUSEMIDI.MIDI]
+AddReg=MUSEMIDI.MIDI.AddReg
+[MUSEMIDI.MIDI.AddReg]
+HKR,,CLSID,,%Proxy.CLSID%
+HKR,,FriendlyName,,%MUSE.MIDI.szPname%
+
+[Strings]
+OrganizationName="Muse App LLC"
+DriverDisplayName="Muse MIDI Driver"
+DiskName="Muse MIDI Installation Disk"
+MuseAudio.SVCDESC="Muse MIDI Service"
+MuseAudio.DeviceDesc="Muse MIDI"
+
+Proxy.CLSID="{17CCA71B-ECD7-11D0-B908-00A0C9223196}"
+
+KSNAME_Midi="Muse MIDI"
+MUSE.MIDI.szPname="Muse MIDI"
+
+KSCATEGORY_AUDIO="{6994AD04-93EF-11D0-A3CC-00A0C9223196}"
+KSCATEGORY_RENDER="{65E8773E-8F56-11D0-A3B9-00A0C9223196}"
+KSCATEGORY_CAPTURE="{65E8773D-8F56-11D0-A3B9-00A0C9223196}"

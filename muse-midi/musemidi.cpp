@@ -15,24 +15,12 @@
   ==============================================================================
 */
 #include "miniport.h"
-#include "sbvmidi.h"
+#include "musemidi.h"
 #include "log.h"
 
 #define kUseDMusicMiniport 1
 
 #define NUM_CHANNEL_REFERENCE_NAMES 8
-
-static PWSTR PortReferenceNames[NUM_CHANNEL_REFERENCE_NAMES] =
-{
-    L"Springbeats vMIDI1",
-    L"Springbeats vMIDI2",
-    L"Springbeats vMIDI3",
-    L"Springbeats vMIDI4",
-    L"Springbeats vMIDI5",
-    L"Springbeats vMIDI6",
-    L"Springbeats vMIDI7",
-    L"Springbeats vMIDI8" 
-};
 
 /*****************************************************************************
 * DriverEntry()
@@ -309,26 +297,13 @@ NTSTATUS StartDevice
 
     NTSTATUS ntStatus = STATUS_INSUFFICIENT_RESOURCES;
 
-    for (ULONG i = 0; i < NUM_CHANNEL_REFERENCE_NAMES; i++)
-    {
-#if (kUseDMusicMiniport)
-        ntStatus = InstallSubdeviceVirtual(
-            pDeviceObject,
-            pIrp,
-            PortReferenceNames[i],
-            CLSID_PortDMus,
-            CLSID_MiniportDriverDMusUART,
-            ResourceList);
-#else
-        ntStatus = InstallSubdeviceVirtual(
-            pDeviceObject,
-            pIrp,
-            PortReferenceNames[i],
-            IID_IPortMidi,
-            CLSID_MiniportDriverUart,
-            ResourceList);
-#endif
-    }
+    ntStatus = InstallSubdeviceVirtual(
+        pDeviceObject,
+        pIrp,
+        L"Muse MIDI",
+        CLSID_PortDMus,
+        CLSID_MiniportDriverDMusUART,
+        ResourceList);
 
     return ntStatus;
 }
